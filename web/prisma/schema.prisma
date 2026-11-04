@@ -1,0 +1,301 @@
+// Schema adaptado para SQLite (dev local sem Docker)
+// Para produção PostgreSQL: troque provider para "postgresql" e use Decimal @db.Decimal(10,2) + String[]
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. AUTENTICAÇÃO & USUÁRIOS
+// ==========================================
+
+enum UserRole {
+  ADMIN      // Administrador Geral
+  VET        // Veterinário
+  GROOMER    // Estética / SPA
+  RECEPTION  // Recepção
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // hash bcrypt
+  name      String
+  role      UserRole
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  staff          StaffMember?
+  appointmentsAsVet    Appointment[] @relation("VetAppointments")
+  appointmentsAsGroomer Appointment[] @relation("GroomerAppointments")
+  medicalRecords StaffMedicalRecord[]
+  inventoryMoves InventoryMovement[]
+}
+
+// ==========================================
+// 2. FUNCIONÁRIOS / STAFF
+// ==========================================
+
+enum Sector {
+  SPA
+  VET
+  GERAL
+}
+
+model StaffMember {
+  id            String   @id @default(uuid())
+  userId        String?  @unique
+  name          String
+  sector        Sector
+  roleTitle     String   // Cargo específico ex: "Groomer Sênior"
+  crmv          String?  // CRMV-SP xxx (somente veterinários)
+  status        StaffStatus @default(ACTIVE)
+
+  // Permissões operacionais (da referência user edit)
+  permAdvanceStages Boolean @default(false)  // Avançar etapas no painel staff
+  permEditRecords   Boolean @default(false)  // Editar prontuários
+  permFinancial     Boolean @default(false)  // Relatórios financeiros
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  user           User?    @relation(fields: [userId], references: [id])
+}
+
+enum StaffStatus {
+  ACTIVE
+  OFF_DUTY
+  VACATION
+  INACTIVE
+}
+
+// ==========================================
+// 3. CLIENTES (TUTORES)
+// ==========================================
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String
+  email     String?
+  cpf       String?  @unique
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  pets    Pet[]
+}
+
+// ==========================================
+// 4. PETS (PACIENTES)
+// ==========================================
+
+enum PetSpecies {
+  DOG
+  CAT
+  OTHER
+}
+
+model Pet {
+  id          String   @id @default(uuid())
+  name        String
+  species     PetSpecies
+  breed       String
+  weight      Float?   // kg
+  birthDate   DateTime?
+  alert       String?  // Alerta médico/comportamental (ex: "não gosta de secador")
+  notes       String?  // Observações gerais
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  appointments Appointment[]
+  medicalRecords MedicalRecord[]
+}
+
+// ==========================================
+// 5. SERVIÇOS (CATÁLOGO)
+// ==========================================
+
+enum ServiceCategory {
+  BATH
+  GROOMING
+  VET_CONSULT
+  VACCINE
+  SURGERY
+  CHECKUP
+  OTHER
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String
+  category    ServiceCategory
+  description String?
+  price       Float
+  durationMin Int      // Duração estimada em minutos
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  appointments Appointment[]
+}
+
+// ==========================================
+// 6. AGENDAMENTOS
+// ==========================================
+
+enum AppointmentStatus {
+  SCHEDULED    // Agendado
+  WAITING      // Na recepção / espera
+  IN_PROGRESS  // Em execução (banho, consulta)
+  FINISHING    // Acabamento / secagem
+  READY        // Pronto para retirada
+  COMPLETED    // Finalizado / entregue
+  CANCELLED    // Cancelado
+  NO_SHOW      // Não compareceu
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  date        DateTime // Data do agendamento
+  time        String   // Horário (HH:MM)
+
+  status      AppointmentStatus @default(SCHEDULED)
+  currentStep Int      @default(0) // Índice da etapa atual (para pipeline staff)
+
+  // Checklist operacional (JSON flexível)
+  checklist   String?    // [{ label: "Temperatura água", checked: true }, ...]
+
+  // Notas
+  notes       String?  // Observações da equipe
+  tutorNotes  String?  // Observações do tutor no momento do agendamento
+
+  // Timestamps operacionais
+  checkedInAt   DateTime?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relações
+  petId     String
+  pet       Pet      @relation(fields: [petId], references: [id])
+
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+
+  vetId     String?  // Veterinário responsável (se aplicável)
+  vet       User?    @relation("VetAppointments", fields: [vetId], references: [id])
+
+  groomerId String?  // Profissional de estética (se aplicável)
+  groomer   User?    @relation("GroomerAppointments", fields: [groomerId], references: [id])
+
+  // Financeiro
+  priceCharged Float? // Valor cobrado (pode diferir do catálogo)
+  isPaid       Boolean  @default(false)
+  paymentMethod String? // PIX, CREDIT_CARD, DEBIT_CARD, CASH
+}
+
+// ==========================================
+// 7. PRONTUÁRIO CLÍNICO
+// ==========================================
+
+model MedicalRecord {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  title       String   // Ex: "Consulta Dermatológica"
+  description String   // Anamnese / descrição
+  diagnosis   String?
+  prescription String?
+  attachments String // URLs de fotos, raio-x, etc.
+
+  createdAt   DateTime @default(now())
+
+  // Relações
+  petId   String
+  pet     Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  vetId   String
+  vet     User   @relation(fields: [vetId], references: [id])
+}
+
+// ==========================================
+// 8. PRODUTOS & ESTOQUE
+// ==========================================
+
+enum ProductCategory {
+  VACCINE
+  MEDICATION
+  SHAMPOO
+  FOOD
+  SUPPLY     // Material de consumo (seringas, luvas)
+  OTHER
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  category    ProductCategory
+  sku         String   @unique
+  description String?
+  unit        String   // unidade: ml, comprimido, dose, kg
+  minStock    Int      @default(0) // estoque mínimo
+  currentStock Int     @default(0)
+  costPrice   Float?
+  salePrice   Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  movements InventoryMovement[]
+}
+
+enum MovementType {
+  IN      // Entrada / compra
+  OUT     // Saída / consumo
+  ADJUST  // Ajuste de inventário
+  RETURN  // Devolução
+}
+
+model InventoryMovement {
+  id          String   @id @default(uuid())
+  type        MovementType
+  quantity    Int
+  reason      String   // "Compra fornecedor X", "Vacinação pet Y", "Ajuste contagem"
+  createdAt   DateTime @default(now())
+
+  // Relações
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+
+  staffId   String
+  staff     User     @relation(fields: [staffId], references: [id])
+}
+
+// ==========================================
+// 9. NOTIFICAÇÕES / LOG
+// ==========================================
+
+model NotificationLog {
+  id        String   @id @default(uuid())
+  channel   String   // WHATSAPP, SMS, EMAIL
+  recipient String   // número/destinatário
+  message   String
+  sentAt    DateTime @default(now())
+  status    String   // SENT, FAILED, PENDING
+}

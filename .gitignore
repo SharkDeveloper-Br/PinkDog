@@ -1,0 +1,31 @@
+# Dependencies
+**/node_modules/
+
+# Next.js
+web/.next/
+web/out/
+web/*.tsbuildinfo
+
+# Prisma / Database
+*.db
+*.db-journal
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

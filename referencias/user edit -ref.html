@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink Dog — Gestão de Funcionários & Clientes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@800;900&family=JetBrains+Mono:wght@400;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-paper: #F6F3EB;
+      --ink: #18181B;
+      --pink-core: #F472B6;
+      --pink-dark: #BE185D;
+      --cyan-vet: #38BDF8;
+      --yellow-tag: #FEF08A;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      background-image: radial-gradient(rgba(24, 24, 27, 0.08) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-hand { font-family: 'Caveat', cursive; }
+
+    .brutal-border {
+      border: 3px solid var(--ink);
+    }
+
+    .brutal-shadow {
+      box-shadow: 5px 5px 0px #18181B;
+    }
+
+    .brutal-shadow-sm {
+      box-shadow: 3px 3px 0px #18181B;
+    }
+
+    .brutal-shadow-lg {
+      box-shadow: 8px 8px 0px #18181B;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+  <!-- CABEÇALHO -->
+  <header class="w-full max-w-7xl mx-auto mb-6 bg-white brutal-border brutal-shadow p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-pink-400 brutal-border flex items-center justify-center font-syne text-2xl font-black text-white">
+        PD
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold bg-black text-white px-2 py-0.5">// ADMIN_HR_CLIENTS</span>
+          <span class="text-xs font-mono text-zinc-500">PAINEL GERENCIAL</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-syne font-black tracking-tight">GESTÃO DE CARGOS & CLIENTES</h1>
+      </div>
+    </div>
+
+    <!-- SELETOR DE MÓDULO -->
+    <div class="flex items-center gap-2 bg-zinc-100 p-1 brutal-border">
+      <button onclick="switchView('staff')" id="btn-view-staff" class="px-4 py-2 text-xs md:text-sm font-mono font-bold bg-black text-white transition-all">
+        👔 FUNCIONÁRIOS & CARGOS
+      </button>
+      <button onclick="switchView('clients')" id="btn-view-clients" class="px-4 py-2 text-xs md:text-sm font-mono font-bold text-zinc-600 hover:text-black transition-all">
+        🐾 CLIENTES & PETS
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-7xl mx-auto flex-1 flex flex-col gap-6">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: GESTÃO E EDIÇÃO DE FUNCIONÁRIOS     -->
+    <!-- ========================================== -->
+    <section id="section-staff" class="flex flex-col gap-6">
+      
+      <!-- SUB-HEADER DE FUNCIONÁRIOS -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 brutal-border brutal-shadow-sm">
+        <div>
+          <h2 class="text-xl font-syne font-black">QUADRO DE COLABORADORES</h2>
+          <p class="text-xs font-mono text-zinc-500">Defina setores (SPA / Veterinária), cargos técnicos e permissões operacionais.</p>
+        </div>
+        <button onclick="openModalNovoFuncionario()" class="px-4 py-2 bg-pink-400 text-black text-xs font-mono font-bold brutal-border brutal-shadow-sm hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+          + NOVO COLABORADOR
+        </button>
+      </div>
+
+      <!-- CARDS / TABELA DE FUNCIONÁRIOS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="staff-cards-grid">
+        <!-- Renderizado via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: DIRETÓRIO DE CLIENTES & PETS       -->
+    <!-- ========================================== -->
+    <section id="section-clients" class="hidden flex-col gap-6">
+
+      <!-- SUB-HEADER DE CLIENTES -->
+      <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-4 brutal-border brutal-shadow-sm">
+        <div>
+          <h2 class="text-xl font-syne font-black">FICHA CADASTRAL DE TUTORES & PETS</h2>
+          <p class="text-xs font-mono text-zinc-500">Histórico de frequência, datas de atendimento e contato rápido.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <input 
+            type="text" 
+            id="client-search" 
+            oninput="renderClients()"
+            placeholder="Filtrar tutor, telefone ou pet..." 
+            class="px-3 py-2 bg-zinc-50 brutal-border text-xs font-mono w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
+          <button onclick="openModalNovoCliente()" class="px-4 py-2 bg-sky-300 text-black text-xs font-mono font-bold brutal-border brutal-shadow-sm whitespace-nowrap hover:bg-sky-400">
+            + NOVO CLIENTE
+          </button>
+        </div>
+      </div>
+
+      <!-- TABELA DE CLIENTES -->
+      <div class="bg-white brutal-border brutal-shadow overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-zinc-100 border-b-2 border-black text-xs font-mono uppercase text-zinc-600">
+              <th class="p-4">Nome do Cliente (Tutor)</th>
+              <th class="p-4">Telefone</th>
+              <th class="p-4">Nome do Pet (Espécie/Raça)</th>
+              <th class="p-4 text-center">Últimas Visitas</th>
+              <th class="p-4">Data do Último Atendimento</th>
+              <th class="p-4 text-right">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="clients-table-body" class="divide-y divide-zinc-200 text-sm font-mono">
+            <!-- Renderizado via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: EDIÇÃO DE CARGO DE FUNCIONÁRIO     -->
+  <!-- ========================================== -->
+  <div id="modal-edit-role" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white brutal-border brutal-shadow-lg w-full max-w-lg p-6 relative">
+      <button onclick="closeModalEditRole()" class="absolute top-4 right-4 w-8 h-8 bg-zinc-100 brutal-border font-bold flex items-center justify-center hover:bg-black hover:text-white">
+        ✕
+      </button>
+
+      <span class="px-2 py-0.5 bg-black text-white text-[10px] font-mono font-bold uppercase tracking-wider">
+        EDIT_ROLE_WORKFLOW
+      </span>
+      <h3 class="text-2xl font-syne font-black mt-2">Alterar Cargo & Setor</h3>
+      <p class="text-xs font-mono text-zinc-500 mb-6">Atualize as atribuições e o nível de autorização do colaborador.</p>
+
+      <form id="role-edit-form" onsubmit="saveRoleChanges(event)" class="space-y-4 font-mono text-xs">
+        <input type="hidden" id="edit-staff-id">
+
+        <div>
+          <label class="block font-bold text-zinc-700 mb-1">Nome do Colaborador</label>
+          <input type="text" id="edit-staff-name" disabled class="w-full bg-zinc-100 p-2.5 brutal-border cursor-not-allowed text-zinc-500 font-bold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Setor Alocado</label>
+            <select id="edit-staff-sector" onchange="updateRoleOptions()" class="w-full bg-white p-2.5 brutal-border focus:ring-2 focus:ring-pink-400">
+              <option value="SPA">SPA & Estética</option>
+              <option value="VET">Clínica Veterinária</option>
+              <option value="GERAL">Administração Geral</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Novo Cargo</label>
+            <select id="edit-staff-role" class="w-full bg-white p-2.5 brutal-border focus:ring-2 focus:ring-pink-400">
+              <!-- Preenchido dinamicamente -->
+            </select>
+          </div>
+        </div>
+
+        <div id="crmv-container">
+          <label class="block font-bold text-zinc-700 mb-1">Registro Profissional (CRMV se aplicável)</label>
+          <input type="text" id="edit-staff-crmv" placeholder="Ex: CRMV-SP 44.912" class="w-full bg-white p-2.5 brutal-border">
+        </div>
+
+        <div>
+          <label class="block font-bold text-zinc-700 mb-1">Permissões de Acesso</label>
+          <div class="space-y-2 p-3 bg-zinc-50 brutal-border">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="perm-stage" class="w-4 h-4 accent-pink-500">
+              <span>Avançar etapas operacionais no Painel Staff</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="perm-records" class="w-4 h-4 accent-pink-500">
+              <span>Editar prontuários e fichas médicas</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="perm-financial" class="w-4 h-4 accent-pink-500">
+              <span>Acessar relatórios financeiros e faturamento</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4 border-t-2 border-zinc-200">
+          <button type="button" onclick="closeModalEditRole()" class="px-4 py-2 bg-zinc-200 brutal-border font-bold">CANCELAR</button>
+          <button type="submit" class="px-5 py-2 bg-pink-400 text-black font-bold brutal-border hover:bg-pink-500">SALVAR CARGO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: HISTÓRICO DE VISITAS DO CLIENTE     -->
+  <!-- ========================================== -->
+  <div id="modal-visits" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white brutal-border brutal-shadow-lg w-full max-w-xl p-6 relative">
+      <button onclick="closeModalVisits()" class="absolute top-4 right-4 w-8 h-8 bg-zinc-100 brutal-border font-bold flex items-center justify-center hover:bg-black hover:text-white">
+        ✕
+      </button>
+
+      <span class="px-2 py-0.5 bg-yellow-300 text-black text-[10px] font-mono font-bold uppercase tracking-wider brutal-border">
+        HISTÓRICO_ATENDIMENTO
+      </span>
+      <h3 class="text-2xl font-syne font-black mt-2" id="visits-modal-title">Visitas de Shaggy</h3>
+      <p class="text-xs font-mono text-zinc-500 mb-4" id="visits-modal-owner">Tutor: Igor Torres • (11) 98841-3320</p>
+
+      <div class="border-2 border-black max-h-60 overflow-y-auto">
+        <table class="w-full text-left font-mono text-xs">
+          <thead class="bg-zinc-100 border-b border-black">
+            <tr>
+              <th class="p-2.5">Data</th>
+              <th class="p-2.5">Setor</th>
+              <th class="p-2.5">Procedimento / Detalhes</th>
+              <th class="p-2.5 text-right">Profissional</th>
+            </tr>
+          </thead>
+          <tbody id="visits-history-body" class="divide-y divide-zinc-200">
+            <!-- Linhas de visitas -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-5 flex justify-end">
+        <button onclick="closeModalVisits()" class="px-5 py-2 bg-black text-white font-mono text-xs font-bold brutal-border">
+          FECHAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LÓGICO -->
+  <script>
+    // DADOS INICIAIS DE FUNCIONÁRIOS
+    let staffMembers = [
+      {
+        id: "STF-01",
+        name: "Dra. Camila (Pink)",
+        sector: "VET",
+        role: "Médica Veterinária Chefe",
+        crmv: "CRMV-SP 44.912",
+        status: "Ativo",
+        permissions: { stage: true, records: true, financial: true }
+      },
+      {
+        id: "STF-02",
+        name: "Mariana Rocha",
+        sector: "SPA",
+        role: "Groomer & Tosadora Sênior",
+        crmv: "—",
+        status: "Ativo",
+        permissions: { stage: true, records: false, financial: false }
+      },
+      {
+        id: "STF-03",
+        name: "Lucas Alencar",
+        sector: "SPA",
+        role: "Banhista Especialista",
+        crmv: "—",
+        status: "Em Turno",
+        permissions: { stage: true, records: false, financial: false }
+      },
+      {
+        id: "STF-04",
+        name: "Dr. André Soares",
+        sector: "VET",
+        role: "Cirurgião Veterinário",
+        crmv: "CRMV-SP 51.309",
+        status: "Ativo",
+        permissions: { stage: true, records: true, financial: false }
+      },
+      {
+        id: "STF-05",
+        name: "Beatriz Nogueira",
+        sector: "GERAL",
+        role: "Gerente de Atendimento & Recepção",
+        crmv: "—",
+        status: "Ativo",
+        permissions: { stage: true, records: true, financial: true }
+      }
+    ];
+
+    // OPÇÕES DE CARGOS POR SETOR
+    const sectorRoles = {
+      SPA: [
+        "Banhista Especialista",
+        "Groomer & Tosadora Sênior",
+        "Assistente de Secagem",
+        "Supervisor de Estética Canina"
+      ],
+      VET: [
+        "Médico(a) Veterinário(a) Clínico(a)",
+        "Médica Veterinária Chefe",
+        "Cirurgião Veterinário",
+        "Enfermeiro(a) Veterinário(a)",
+        "Anestesista Veterinário"
+      ],
+      GERAL: [
+        "Gerente de Atendimento & Recepção",
+        "Recepcionista Hospitalar",
+        "Auxiliar Administrativo",
+        "Administrador Geral"
+      ]
+    };
+
+    // DADOS DE CLIENTES E PETS CONFORME SOLICITADO
+    let clientsData = [
+      {
+        id: "CLI-101",
+        ownerName: "Igor Torres",
+        phone: "(11) 98841-3320",
+        petName: "Shaggy",
+        petDetails: "Golden Retriever • 3 anos",
+        visitCount: 14,
+        lastServiceDate: "04/Nov/2026",
+        visitsHistory: [
+          { date: "04/Nov/2026", sector: "SPA", desc: "Banho de Zinco + Tosa Higiênica", pro: "Mariana R." },
+          { date: "18/Out/2026", sector: "SPA", desc: "Banho Relaxante", pro: "Lucas A." },
+          { date: "02/Set/2026", sector: "VET", desc: "Check-up Anual + Vacina V10", pro: "Dra. Pink" }
+        ]
+      },
+      {
+        id: "CLI-102",
+        ownerName: "Fernanda Lima",
+        phone: "(11) 97123-4567",
+        petName: "Paçoca",
+        petDetails: "Bulldog Francês • 2 anos",
+        visitCount: 6,
+        lastServiceDate: "03/Nov/2026",
+        visitsHistory: [
+          { date: "03/Nov/2026", sector: "VET", desc: "Consulta Dermatológica / Citologia", pro: "Dra. Pink" },
+          { date: "15/Out/2026", sector: "SPA", desc: "Banho Hipoalergênico", pro: "Lucas A." }
+        ]
+      },
+      {
+        id: "CLI-103",
+        ownerName: "Carlos Eduardo",
+        phone: "(11) 99876-1234",
+        petName: "Luna",
+        petDetails: "Spitz Alemão • 1 ano",
+        visitCount: 9,
+        lastServiceDate: "02/Nov/2026",
+        visitsHistory: [
+          { date: "02/Nov/2026", sector: "SPA", desc: "Tosa Tesoura Padrão Spitz", pro: "Mariana R." },
+          { date: "10/Out/2026", sector: "SPA", desc: "Hidratação de Argan", pro: "Mariana R." }
+        ]
+      },
+      {
+        id: "CLI-104",
+        ownerName: "Roberto Santos",
+        phone: "(11) 96543-9870",
+        petName: "Thor",
+        petDetails: "Rottweiler • 5 anos",
+        visitCount: 4,
+        lastServiceDate: "01/Nov/2026",
+        visitsHistory: [
+          { date: "01/Nov/2026", sector: "VET", desc: "Ecocardiograma de Rotina", pro: "Dr. André" },
+          { date: "20/Jul/2026", sector: "VET", desc: "Reforço Vacina Antirrábica", pro: "Dra. Pink" }
+        ]
+      },
+      {
+        id: "CLI-105",
+        ownerName: "Beatriz Mendes",
+        phone: "(11) 98321-7788",
+        petName: "Pipoca",
+        petDetails: "Shih Tzu • 4 anos",
+        visitCount: 18,
+        lastServiceDate: "30/Out/2026",
+        visitsHistory: [
+          { date: "30/Out/2026", sector: "SPA", desc: "Banho + Hidratação + Laço Pink", pro: "Lucas A." },
+          { date: "16/Out/2026", sector: "SPA", desc: "Tosa Bebê", pro: "Mariana R." }
+        ]
+      }
+    ];
+
+    // CONTROLE DE NAVEGAÇÃO ENTRE AS VIEWS
+    function switchView(view) {
+      const secStaff = document.getElementById('section-staff');
+      const secClients = document.getElementById('section-clients');
+      const btnStaff = document.getElementById('btn-view-staff');
+      const btnClients = document.getElementById('btn-view-clients');
+
+      if (view === 'staff') {
+        secStaff.classList.remove('hidden');
+        secClients.classList.add('hidden');
+        btnStaff.className = "px-4 py-2 text-xs md:text-sm font-mono font-bold bg-black text-white transition-all";
+        btnClients.className = "px-4 py-2 text-xs md:text-sm font-mono font-bold text-zinc-600 hover:text-black transition-all";
+      } else {
+        secStaff.classList.add('hidden');
+        secClients.classList.remove('hidden');
+        secStaff.classList.remove('flex');
+        secClients.classList.add('flex');
+        btnClients.className = "px-4 py-2 text-xs md:text-sm font-mono font-bold bg-black text-white transition-all";
+        btnStaff.className = "px-4 py-2 text-xs md:text-sm font-mono font-bold text-zinc-600 hover:text-black transition-all";
+        renderClients();
+      }
+    }
+
+    // RENDERIZAÇÃO DOS FUNCIONÁRIOS
+    function renderStaff() {
+      const container = document.getElementById('staff-cards-grid');
+      container.innerHTML = '';
+
+      staffMembers.forEach(member => {
+        const isSpa = member.sector === 'SPA';
+        const isVet = member.sector === 'VET';
+
+        const card = document.createElement('div');
+        card.className = "bg-white brutal-border brutal-shadow-sm p-5 flex flex-col justify-between relative";
+
+        let badgeBg = isSpa ? 'bg-pink-100 text-pink-800 border-pink-400' : isVet ? 'bg-sky-100 text-sky-800 border-sky-400' : 'bg-amber-100 text-amber-900 border-amber-400';
+        let sectorTag = isSpa ? 'SPA & ESTÉTICA' : isVet ? 'CLÍNICA VETERINÁRIA' : 'ADMINISTRAÇÃO';
+
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start mb-3">
+              <span class="px-2 py-0.5 text-[10px] font-mono font-bold brutal-border ${badgeBg}">
+                ${sectorTag}
+              </span>
+              <span class="text-xs font-mono font-bold text-zinc-400">${member.id}</span>
+            </div>
+
+            <h3 class="text-lg font-syne font-black">${member.name}</h3>
+            
+            <div class="mt-2 p-2 bg-zinc-50 brutal-border font-mono">
+              <div class="text-[10px] text-zinc-400 uppercase font-bold">// CARGO ATUAL</div>
+              <div class="text-xs font-bold text-zinc-900">${member.role}</div>
+              ${member.crmv !== '—' ? `<div class="text-[11px] text-sky-700 mt-0.5 font-semibold">${member.crmv}</div>` : ''}
+            </div>
+
+            <div class="mt-3 font-mono text-[11px] space-y-1 text-zinc-600">
+              <div class="flex items-center gap-1.5">
+                <span class="${member.permissions.stage ? 'text-green-600' : 'text-zinc-300'} font-bold">●</span>
+                <span>Painel Operacional: ${member.permissions.stage ? 'Habilitado' : 'Sem acesso'}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="${member.permissions.records ? 'text-green-600' : 'text-zinc-300'} font-bold">●</span>
+                <span>Edição de Prontuários: ${member.permissions.records ? 'Liberado' : 'Bloqueado'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-3 border-t-2 border-zinc-100 flex justify-between items-center">
+            <span class="text-[10px] font-mono font-bold text-zinc-500 uppercase">STATUS: ${member.status}</span>
+            <button onclick="openModalEditRole('${member.id}')" class="px-3 py-1.5 bg-yellow-300 hover:bg-yellow-400 text-black font-mono font-bold text-xs brutal-border transition-colors">
+              ⚙ EDITAR CARGO
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // MODAL DE EDIÇÃO DE CARGOS
+    function openModalEditRole(id) {
+      const member = staffMembers.find(m => m.id === id);
+      if (!member) return;
+
+      document.getElementById('edit-staff-id').value = member.id;
+      document.getElementById('edit-staff-name').value = member.name;
+      document.getElementById('edit-staff-sector').value = member.sector;
+      document.getElementById('edit-staff-crmv').value = member.crmv !== '—' ? member.crmv : '';
+      
+      document.getElementById('perm-stage').checked = member.permissions.stage;
+      document.getElementById('perm-records').checked = member.permissions.records;
+      document.getElementById('perm-financial').checked = member.permissions.financial;
+
+      updateRoleOptions(member.role);
+
+      document.getElementById('modal-edit-role').classList.remove('hidden');
+      document.getElementById('modal-edit-role').classList.add('flex');
+    }
+
+    function updateRoleOptions(selectedRole = null) {
+      const sector = document.getElementById('edit-staff-sector').value;
+      const roleSelect = document.getElementById('edit-staff-role');
+      const crmvBox = document.getElementById('crmv-container');
+
+      roleSelect.innerHTML = '';
+      const roles = sectorRoles[sector] || [];
+      roles.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.innerText = r;
+        if (selectedRole && r === selectedRole) opt.selected = true;
+        roleSelect.appendChild(opt);
+      });
+
+      // Se for Veterinária, dá destaque ao campo de CRMV
+      if (sector === 'VET') {
+        crmvBox.style.display = 'block';
+      } else {
+        crmvBox.style.display = 'none';
+      }
+    }
+
+    function closeModalEditRole() {
+      document.getElementById('modal-edit-role').classList.add('hidden');
+      document.getElementById('modal-edit-role').classList.remove('flex');
+    }
+
+    function saveRoleChanges(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-staff-id').value;
+      const member = staffMembers.find(m => m.id === id);
+      if (!member) return;
+
+      member.sector = document.getElementById('edit-staff-sector').value;
+      member.role = document.getElementById('edit-staff-role').value;
+      member.crmv = member.sector === 'VET' && document.getElementById('edit-staff-crmv').value.trim() 
+        ? document.getElementById('edit-staff-crmv').value.trim() 
+        : '—';
+
+      member.permissions = {
+        stage: document.getElementById('perm-stage').checked,
+        records: document.getElementById('perm-records').checked,
+        financial: document.getElementById('perm-financial').checked
+      };
+
+      closeModalEditRole();
+      renderStaff();
+    }
+
+    // RENDERIZAÇÃO DA TABELA DE CLIENTES
+    function renderClients() {
+      const tbody = document.getElementById('clients-table-body');
+      const search = document.getElementById('client-search').value.toLowerCase();
+      tbody.innerHTML = '';
+
+      const filtered = clientsData.filter(c => 
+        c.ownerName.toLowerCase().includes(search) ||
+        c.phone.includes(search) ||
+        c.petName.toLowerCase().includes(search)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-zinc-400">Nenhum cliente ou pet encontrado com esse termo.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(cli => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-zinc-50 transition-colors";
+
+        tr.innerHTML = `
+          <td class="p-4">
+            <div class="font-bold text-zinc-900">${cli.ownerName}</div>
+            <div class="text-[11px] text-zinc-400">${cli.id}</div>
+          </td>
+          <td class="p-4">
+            <a href="https://wa.me/55${cli.phone.replace(/\D/g, '')}" target="_blank" class="text-zinc-800 hover:text-pink-600 font-bold underline decoration-pink-300">
+              ${cli.phone}
+            </a>
+          </td>
+          <td class="p-4">
+            <div class="font-bold text-pink-700">🐶 ${cli.petName}</div>
+            <div class="text-xs text-zinc-500">${cli.petDetails}</div>
+          </td>
+          <td class="p-4 text-center">
+            <span class="inline-block px-2.5 py-0.5 bg-yellow-100 text-yellow-900 font-bold text-xs brutal-border">
+              ${cli.visitCount} visitas
+            </span>
+          </td>
+          <td class="p-4">
+            <div class="font-bold text-zinc-800">${cli.lastServiceDate}</div>
+            <div class="text-[11px] text-zinc-500">${cli.visitsHistory[0]?.desc || 'Atendimento de rotina'}</div>
+          </td>
+          <td class="p-4 text-right">
+            <button onclick="openModalVisits('${cli.id}')" class="px-3 py-1 bg-white brutal-border text-xs font-bold hover:bg-black hover:text-white transition-colors">
+              HISTÓRICO COMPLETO ↗
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // MODAL DE HISTÓRICO DE VISITAS DO PET
+    function openModalVisits(clientId) {
+      const client = clientsData.find(c => c.id === clientId);
+      if (!client) return;
+
+      document.getElementById('visits-modal-title').innerText = `Histórico de Atendimentos — ${client.petName}`;
+      document.getElementById('visits-modal-owner').innerText = `Tutor: ${client.ownerName} • ${client.phone} • Total: ${client.visitCount} passagens`;
+
+      const tbody = document.getElementById('visits-history-body');
+      tbody.innerHTML = '';
+
+      client.visitsHistory.forEach(v => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="p-2.5 font-bold">${v.date}</td>
+          <td class="p-2.5">
+            <span class="px-1.5 py-0.5 text-[10px] font-bold ${v.sector === 'SPA' ? 'bg-pink-100 text-pink-800' : 'bg-sky-100 text-sky-800'}">
+              ${v.sector}
+            </span>
+          </td>
+          <td class="p-2.5 text-zinc-700">${v.desc}</td>
+          <td class="p-2.5 text-right font-semibold text-zinc-600">${v.pro}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('modal-visits').classList.remove('hidden');
+      document.getElementById('modal-visits').classList.add('flex');
+    }
+
+    function closeModalVisits() {
+      document.getElementById('modal-visits').classList.add('hidden');
+      document.getElementById('modal-visits').classList.remove('flex');
+    }
+
+    function openModalNovoFuncionario() {
+      alert("Abrindo formulário de admissão de novo colaborador Pink Dog.");
+    }
+
+    function openModalNovoCliente() {
+      alert("Abrindo formulário de cadastro de novo Tutor e Pet.");
+    }
+
+    // Inicialização
+    renderStaff();
+  </script>
+</body>
+</html>

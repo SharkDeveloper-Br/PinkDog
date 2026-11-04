@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink Dog — Staff Operational Board // SYS_03</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Bebas Neue, Space Grotesk, JetBrains Mono, Architects Daughter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FAF5EC',
+            'paper-dark': '#EFE7D7',
+            'paper-sheet': '#FCFAF6',
+            ink: '#161616',
+            'pink-pop': '#FF5882',
+            'pink-soft': '#FFAEC0',
+            'retro-cyan': '#4AA3A9',
+            'retro-amber': '#E59828',
+            'retro-green': '#2E8B57',
+            'badge-red': '#E63946'
+          },
+          fontFamily: {
+            title: ['"Bebas Neue"', 'sans-serif'],
+            body: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            hand: ['"Architects Daughter"', 'cursive']
+          },
+          boxShadow: {
+            'brutal': '3px 3px 0px #161616',
+            'brutal-lg': '6px 6px 0px #161616',
+            'brutal-sm': '2px 2px 0px #161616',
+            'inner-stamp': 'inset 0 0 0 2px #161616'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FAF5EC;
+      color: #161616;
+      background-image: 
+        radial-gradient(rgba(22, 22, 22, 0.05) 1px, transparent 0),
+        linear-gradient(to right, rgba(22, 22, 22, 0.02) 1px, transparent 1px);
+      background-size: 16px 16px, 32px 32px;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF5EC;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #161616;
+      border: 1px solid #FAF5EC;
+    }
+
+    .pulse-dot {
+      animation: pulseAnim 2s infinite;
+    }
+    @keyframes pulseAnim {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body class="font-body selection:bg-pink-pop selection:text-white min-h-screen pb-16">
+
+  <!-- TOP HUD BAR: SHIFT & OPERATOR CONTROL -->
+  <header class="border-b-2 border-ink bg-paper/95 backdrop-blur sticky top-0 z-40 px-4 py-2 text-xs font-mono">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Operator Identification & Status -->
+      <div class="flex items-center gap-3">
+        <div class="relative w-8 h-8 rounded-full border-2 border-ink overflow-hidden bg-pink-soft/60 flex items-center justify-center font-bold text-ink">
+          <span>🌸</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-ink">DRA. PINK / POSTO SPA 01</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+          </div>
+          <div class="text-[10px] text-ink/70">TURNO OPERACIONAL // ESTAÇÃO ATIVA</div>
+        </div>
+      </div>
+
+      <!-- Station Telemetry Metrics -->
+      <div class="hidden md:flex items-center gap-4 bg-paper-dark border border-ink px-3 py-1 text-[11px]">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-temperature-half text-retro-cyan"></i>
+          <span>BANHEIRA: <strong class="text-ink">28.4°C</strong></span>
+        </div>
+        <span class="text-ink/30">|</span>
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-wind text-pink-pop"></i>
+          <span>SECADORES: <strong class="text-ink">1/3 EM USO</strong></span>
+        </div>
+        <span class="text-ink/30">|</span>
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-clock text-retro-amber"></i>
+          <span id="liveClock">00:00:00</span>
+        </div>
+      </div>
+
+      <!-- Navigation & Shift End -->
+      <div class="flex items-center gap-2">
+        <a href="admin.html" class="border border-ink bg-paper hover:bg-paper-dark px-3 py-1 font-mono text-[11px] shadow-brutal-sm">
+          <i class="fa-solid fa-table-columns"></i> ADMIN
+        </a>
+        <a href="index.html" class="border border-ink bg-paper hover:bg-paper-dark px-3 py-1 font-mono text-[11px] shadow-brutal-sm">
+          <i class="fa-solid fa-house"></i> SITE
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN OPERATIONAL WORKSPACE -->
+  <main class="max-w-7xl mx-auto px-4 pt-6 space-y-6">
+    
+    <!-- DASHBOARD SUBHEADER: CONTROLS, VIEW TOGGLE, FILTERS -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-ink pb-4">
+      <div>
+        <div class="font-mono text-xs text-pink-pop font-bold uppercase tracking-widest">// SYS_03: OPERATIONAL PIPELINE</div>
+        <h1 class="font-title text-4xl sm:text-6xl text-ink tracking-tight">FLUXO DE ATENDIMENTO DO DIA</h1>
+        <p class="font-hand text-base text-ink/80 mt-1">
+          * Acompanhe os pets agendados e avance as etapas até a liberação final para o tutor.
+        </p>
+      </div>
+
+      <!-- View Mode & Category Filters -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        
+        <!-- Filter Category -->
+        <div class="border-2 border-ink bg-paper p-1 flex gap-1 font-mono text-xs shadow-brutal-sm">
+          <button onclick="setServiceFilter('all')" id="btn-filter-all" class="px-2.5 py-1 font-bold bg-ink text-white transition">TODOS (4)</button>
+          <button onclick="setServiceFilter('banho')" id="btn-filter-banho" class="px-2.5 py-1 text-ink hover:bg-paper-dark transition">BANHO &amp; SPA (3)</button>
+          <button onclick="setServiceFilter('clinica')" id="btn-filter-clinica" class="px-2.5 py-1 text-ink hover:bg-paper-dark transition">CLÍNICA (1)</button>
+        </div>
+
+        <!-- View Switcher -->
+        <div class="border-2 border-ink bg-paper p-1 flex gap-1 font-mono text-xs shadow-brutal-sm">
+          <button onclick="setViewMode('list')" id="btn-view-list" class="px-2.5 py-1 font-bold bg-ink text-white transition flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check"></i> LISTA
+          </button>
+          <button onclick="setViewMode('kanban')" id="btn-view-kanban" class="px-2.5 py-1 text-ink hover:bg-paper-dark transition flex items-center gap-1.5">
+            <i class="fa-solid fa-columns"></i> KANBAN
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW 1: LIST / CARDS PROGRESSION VIEW -->
+    <div id="listView" class="space-y-4">
+      <!-- Pet cards injected dynamically -->
+    </div>
+
+    <!-- VIEW 2: KANBAN COLUMNS VIEW -->
+    <div id="kanbanView" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+        
+        <!-- Col 1: Espera / Check-in -->
+        <div class="border-2 border-ink bg-paper p-3 shadow-brutal min-h-[460px] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+              <span class="font-title text-xl tracking-wide flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-ink"></span> 01. ESPERA / TRIAGEM
+              </span>
+              <span id="count-col-0" class="font-mono text-xs font-bold px-1.5 bg-paper-dark border border-ink">0</span>
+            </div>
+            <div id="kanban-col-0" class="space-y-3"></div>
+          </div>
+          <div class="font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/30 text-center">Aguardando Início</div>
+        </div>
+
+        <!-- Col 2: Em Execução (Banheira ou Exame) -->
+        <div class="border-2 border-ink bg-amber-50/70 p-3 shadow-brutal min-h-[460px] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+              <span class="font-title text-xl tracking-wide text-retro-amber flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-retro-amber animate-pulse"></span> 02. EM EXECUÇÃO
+              </span>
+              <span id="count-col-1" class="font-mono text-xs font-bold px-1.5 bg-amber-200 border border-ink">0</span>
+            </div>
+            <div id="kanban-col-1" class="space-y-3"></div>
+          </div>
+          <div class="font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/30 text-center">Banheira / Consultório</div>
+        </div>
+
+        <!-- Col 3: Secagem / Procedimento Final -->
+        <div class="border-2 border-ink bg-paper p-3 shadow-brutal min-h-[460px] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+              <span class="font-title text-xl tracking-wide text-retro-cyan flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-retro-cyan"></span> 03. ACABAMENTO
+              </span>
+              <span id="count-col-2" class="font-mono text-xs font-bold px-1.5 bg-paper-dark border border-ink">0</span>
+            </div>
+            <div id="kanban-col-2" class="space-y-3"></div>
+          </div>
+          <div class="font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/30 text-center">Secagem &amp; Tosa</div>
+        </div>
+
+        <!-- Col 4: Pronto / Retirada -->
+        <div class="border-2 border-ink bg-emerald-50/60 p-3 shadow-brutal min-h-[460px] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
+              <span class="font-title text-xl tracking-wide text-emerald-800 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-emerald-600"></span> 04. PRONTO PARA SAÍDA
+              </span>
+              <span id="count-col-3" class="font-mono text-xs font-bold px-1.5 bg-emerald-200 border border-ink">0</span>
+            </div>
+            <div id="kanban-col-3" class="space-y-3"></div>
+          </div>
+          <div class="font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/30 text-center">Tutor Notificado</div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- QUICK OBSERVATION MODAL -->
+  <div id="noteModal" class="fixed inset-0 bg-ink/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="border-4 border-ink bg-paper max-w-md w-full shadow-brutal-lg">
+      <div class="bg-ink text-paper px-4 py-2.5 flex items-center justify-between font-mono text-xs">
+        <span class="font-bold">// NOTA RÁPIDA DE CONDUTA</span>
+        <button onclick="closeNoteModal()" class="text-paper hover:text-pink-pop text-base"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="p-5 space-y-3 font-mono text-xs">
+        <div class="font-bold" id="notePetHeader">Pet: -</div>
+        <textarea id="noteInput" rows="3" class="w-full border-2 border-ink p-2.5 bg-white text-xs focus:outline-none" placeholder="Ex: Pele sensível na orelha direita; unhas aparadas..."></textarea>
+        <div class="flex justify-end gap-2 pt-2">
+          <button onclick="closeNoteModal()" class="border border-ink px-3 py-1.5 bg-paper hover:bg-paper-dark">Cancelar</button>
+          <button onclick="saveQuickNote()" class="border-2 border-ink px-4 py-1.5 bg-pink-pop text-white font-bold shadow-brutal-sm">Salvar Nota</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST FEEDBACK NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 border-2 border-ink bg-paper px-4 py-3 shadow-brutal-lg font-mono text-xs z-50 hidden flex items-center gap-3">
+    <span class="w-3 h-3 bg-pink-pop"></span>
+    <span id="toastMsg" class="font-bold">Aviso</span>
+  </div>
+
+  <!-- APPLICATION LOGIC -->
+  <script>
+    // Initial Pet Pipeline Data
+    const petsData = [
+      {
+        id: 'PK-01',
+        time: '09:00',
+        name: 'Pipoca',
+        breed: 'Golden Retriever',
+        weight: '31kg',
+        tutor: 'Mariana Bastos',
+        phone: '11991120044',
+        type: 'banho',
+        typeName: 'Banho Relax & Hidratação',
+        avatarEmoji: '🐕',
+        avatarBg: 'bg-amber-100',
+        alert: '⚠️ Não utilizar secador na potência máxima.',
+        timerSeconds: 1540,
+        timerRunning: false,
+        timerInterval: null,
+        currentStep: 3, // 0 to 4
+        steps: [
+          'Check-in / Recepção',
+          'Na Banheira (Lavagem)',
+          'Secador & Soprador',
+          'Tosa & Acabamento',
+          'Pronto para Retirada'
+        ],
+        notes: 'Encontrada sensibilidade leve na almofadinha da pata direita.'
+      },
+      {
+        id: 'PK-02',
+        time: '10:15',
+        name: 'Paçoca',
+        breed: 'Golden Retriever',
+        weight: '29kg',
+        tutor: 'Lucas Mendes',
+        phone: '11981234567',
+        type: 'banho',
+        typeName: 'Banho de Espuma Especial',
+        avatarEmoji: '🐶',
+        avatarBg: 'bg-orange-100',
+        alert: '✦ Cão adora água morna (28°C). Procedimento dócil.',
+        timerSeconds: 840,
+        timerRunning: true,
+        timerInterval: null,
+        currentStep: 1,
+        steps: [
+          'Check-in / Recepção',
+          'Na Banheira (Lavagem)',
+          'Secador & Soprador',
+          'Tosa & Acabamento',
+          'Pronto para Retirada'
+        ],
+        notes: 'Aplicado shampoo hipoalergênico sem perfume.'
+      },
+      {
+        id: 'PK-03',
+        time: '11:30',
+        name: 'Thor',
+        breed: 'Bulldog Francês',
+        weight: '12kg',
+        tutor: 'Carlos Prado',
+        phone: '11977665544',
+        type: 'clinica',
+        typeName: 'Consulta Clínica Geral + Vacina',
+        avatarEmoji: '🐾',
+        avatarBg: 'bg-rose-100',
+        alert: '⚠️ Cuidado: Respiração ruidosa típica. Evitar estresse.',
+        timerSeconds: 0,
+        timerRunning: false,
+        timerInterval: null,
+        currentStep: 0,
+        steps: [
+          'Triagem / Peso & Temp',
+          'Consulta Clínica Geral',
+          'Procedimento / Vacina',
+          'Prescrição & Liberação'
+        ],
+        notes: 'Aguardando início no consultório 01.'
+      },
+      {
+        id: 'PK-04',
+        time: '14:00',
+        name: 'Nina',
+        breed: 'Shih Tzu',
+        weight: '5kg',
+        tutor: 'Beatriz Lima',
+        phone: '11988887766',
+        type: 'banho',
+        typeName: 'Spa & Tosa Baby na Tesoura',
+        avatarEmoji: '✂️',
+        avatarBg: 'bg-pink-100',
+        alert: '✦ Tosa com tesoura curva nas patinhas solicitada.',
+        timerSeconds: 0,
+        timerRunning: false,
+        timerInterval: null,
+        currentStep: 0,
+        steps: [
+          'Check-in / Recepção',
+          'Na Banheira (Lavagem)',
+          'Secador & Soprador',
+          'Tosa & Acabamento',
+          'Pronto para Retirada'
+        ],
+        notes: 'Aguardando chegada prevista para às 13:45.'
+      }
+    ];
+
+    let currentFilter = 'all';
+    let currentView = 'list';
+    let activePetForNote = null;
+
+    // Real time clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveClock').textContent = now.toLocaleTimeString('pt-BR');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Format seconds to mm:ss
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    // Advance step
+    function advanceStep(petId) {
+      const pet = petsData.find(p => p.id === petId);
+      if (!pet) return;
+
+      if (pet.currentStep < pet.steps.length - 1) {
+        pet.currentStep++;
+        
+        // Auto start timer if entering step 1
+        if (pet.currentStep === 1 && !pet.timerRunning) {
+          toggleTimer(pet.id);
+        }
+
+        // If completed
+        if (pet.currentStep === pet.steps.length - 1) {
+          pet.timerRunning = false;
+          if (pet.timerInterval) clearInterval(pet.timerInterval);
+          showToast(`✨ ${pet.name} atingiu a etapa final! Pronto para retirada.`);
+        } else {
+          showToast(`Etapa de ${pet.name} atualizada para: ${pet.steps[pet.currentStep]}`);
+        }
+        
+        render();
+      }
+    }
+
+    // Set specific step directly
+    function setStep(petId, stepIndex) {
+      const pet = petsData.find(p => p.id === petId);
+      if (!pet) return;
+      pet.currentStep = stepIndex;
+      if (pet.currentStep === pet.steps.length - 1) {
+        pet.timerRunning = false;
+        if (pet.timerInterval) clearInterval(pet.timerInterval);
+      }
+      render();
+    }
+
+    // Toggle Timer for card
+    function toggleTimer(petId) {
+      const pet = petsData.find(p => p.id === petId);
+      if (!pet) return;
+
+      if (pet.timerRunning) {
+        pet.timerRunning = false;
+        clearInterval(pet.timerInterval);
+      } else {
+        pet.timerRunning = true;
+        pet.timerInterval = setInterval(() => {
+          pet.timerSeconds++;
+          const el = document.getElementById(`timer-display-${pet.id}`);
+          if (el) el.textContent = formatTime(pet.timerSeconds);
+        }, 1000);
+      }
+      render();
+    }
+
+    // WhatsApp Dispatch simulation
+    function dispatchWhatsApp(petId) {
+      const pet = petsData.find(p => p.id === petId);
+      if (!pet) return;
+      const message = encodeURIComponent(`Olá, ${pet.tutor}! 🌸 Aqui é da Pink Dog Pet & Vet. Informamos que o procedimento do seu pet ${pet.name} foi finalizado com muito carinho e ele já está pronto para retirada! 🐾`);
+      window.open(`https://api.whatsapp.com/send?phone=55${pet.phone}&text=${message}`, '_blank');
+      showToast(`Disparado WhatsApp para ${pet.tutor}!`);
+    }
+
+    // Quick notes handling
+    function openNoteModal(petId) {
+      const pet = petsData.find(p => p.id === petId);
+      if (!pet) return;
+      activePetForNote = pet;
+      document.getElementById('notePetHeader').textContent = `Paciente: ${pet.name} (${pet.breed}) — Tutor: ${pet.tutor}`;
+      document.getElementById('noteInput').value = pet.notes || '';
+      document.getElementById('noteModal').classList.remove('hidden');
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.add('hidden');
+      activePetForNote = null;
+    }
+
+    function saveQuickNote() {
+      if (!activePetForNote) return;
+      activePetForNote.notes = document.getElementById('noteInput').value;
+      closeNoteModal();
+      showToast(`Nota rápida de ${activePetForNote.name} salva.`);
+      render();
+    }
+
+    // Filtering
+    function setServiceFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('#btn-filter-all, #btn-filter-banho, #btn-filter-clinica').forEach(b => {
+        b.classList.remove('bg-ink', 'text-white', 'font-bold');
+        b.classList.add('text-ink');
+      });
+      const activeBtn = document.getElementById(`btn-filter-${filter}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-ink', 'text-white', 'font-bold');
+        activeBtn.classList.remove('text-ink');
+      }
+      render();
+    }
+
+    // View Switching
+    function setViewMode(mode) {
+      currentView = mode;
+      const btnList = document.getElementById('btn-view-list');
+      const btnKanban = document.getElementById('btn-view-kanban');
+      const listView = document.getElementById('listView');
+      const kanbanView = document.getElementById('kanbanView');
+
+      if (mode === 'list') {
+        btnList.className = 'px-2.5 py-1 font-bold bg-ink text-white transition flex items-center gap-1.5';
+        btnKanban.className = 'px-2.5 py-1 text-ink hover:bg-paper-dark transition flex items-center gap-1.5';
+        listView.classList.remove('hidden');
+        kanbanView.classList.add('hidden');
+      } else {
+        btnKanban.className = 'px-2.5 py-1 font-bold bg-ink text-white transition flex items-center gap-1.5';
+        btnList.className = 'px-2.5 py-1 text-ink hover:bg-paper-dark transition flex items-center gap-1.5';
+        kanbanView.classList.remove('hidden');
+        listView.classList.add('hidden');
+      }
+      render();
+    }
+
+    // Render List View
+    function renderList() {
+      const container = document.getElementById('listView');
+      const filtered = petsData.filter(p => currentFilter === 'all' || p.type === currentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 border-2 border-dashed border-ink text-center font-mono text-sm text-ink/60">Nenhum pet localizado no filtro selecionado.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(pet => {
+        const isDone = pet.currentStep === pet.steps.length - 1;
+        const progressPercent = Math.round(((pet.currentStep) / (pet.steps.length - 1)) * 100);
+
+        return `
+          <div class="border-2 border-ink p-4 sm:p-5 shadow-brutal transition-all ${isDone ? 'bg-emerald-50/80 border-emerald-900' : 'bg-paper'}">
+            
+            <!-- TOP CARD HEADER: TIME & ID & STATUS -->
+            <div class="flex flex-wrap items-center justify-between border-b-2 border-ink pb-3 mb-4 gap-2">
+              <div class="flex items-center gap-3">
+                <span class="bg-ink text-paper font-mono text-xs font-bold px-2.5 py-0.5 border border-ink">
+                  ⏰ PREVISTO: ${pet.time}
+                </span>
+                <span class="font-mono text-xs font-bold ${pet.type === 'clinica' ? 'text-retro-cyan' : 'text-pink-pop'}">
+                  // ${pet.typeName.toUpperCase()}
+                </span>
+              </div>
+
+              <!-- Live Timer & Current Step Indicator -->
+              <div class="flex items-center gap-3 font-mono text-xs">
+                <div class="flex items-center gap-1.5 border border-ink bg-white px-2 py-0.5 shadow-brutal-sm">
+                  <i class="fa-solid fa-stopwatch ${pet.timerRunning ? 'text-pink-pop animate-spin' : 'text-ink/60'}"></i>
+                  <span id="timer-display-${pet.id}" class="font-bold">${formatTime(pet.timerSeconds)}</span>
+                  <button onclick="toggleTimer('${pet.id}')" class="ml-1 text-[10px] text-ink/70 hover:text-ink font-bold">
+                    ${pet.timerRunning ? 'PAUSAR' : 'INICIAR'}
+                  </button>
+                </div>
+
+                <span class="px-2 py-0.5 border border-ink font-bold ${isDone ? 'bg-emerald-600 text-white' : 'bg-paper-dark text-ink'}">
+                  ${isDone ? '✓ FINALIZADO' : `ETAPA ${pet.currentStep + 1}/${pet.steps.length}`}
+                </span>
+              </div>
+            </div>
+
+            <!-- MAIN ROW: PET INFO & INTERACTIVE WORKFLOW STEPPER -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+              
+              <!-- Left: Pet Identity (4 cols) -->
+              <div class="lg:col-span-4 flex items-start gap-3">
+                <div class="w-14 h-14 rounded-sm border-2 border-ink ${pet.avatarBg} flex items-center justify-center text-3xl shadow-brutal-sm shrink-0">
+                  ${pet.avatarEmoji}
+                </div>
+                <div>
+                  <div class="flex items-baseline gap-2">
+                    <h3 class="font-title text-3xl text-ink leading-none">${pet.name}</h3>
+                    <span class="font-mono text-xs text-ink/60">${pet.weight}</span>
+                  </div>
+                  <div class="font-mono text-xs text-ink/80 mt-0.5">${pet.breed}</div>
+                  <div class="font-mono text-[11px] text-ink/60 mt-1">
+                    Tutor: <strong>${pet.tutor}</strong>
+                  </div>
+                  <div class="mt-2 text-[11px] font-mono text-badge-red font-semibold">
+                    ${pet.alert}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Center: Workflow Stepper (6 cols) -->
+              <div class="lg:col-span-5 space-y-2">
+                
+                <div class="flex justify-between items-center font-mono text-[11px]">
+                  <span class="font-bold uppercase text-ink">Fluxo Operacional:</span>
+                  <span class="font-bold text-pink-pop">${progressPercent}% Concluído</span>
+                </div>
+
+                <!-- Step pills grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-${pet.steps.length} gap-1.5">
+                  ${pet.steps.map((st, idx) => {
+                    const stepDone = idx < pet.currentStep;
+                    const stepCurrent = idx === pet.currentStep;
+
+                    let stepClass = 'bg-paper-dark text-ink/60 border-ink/40';
+                    if (stepCurrent) {
+                      stepClass = 'bg-pink-pop text-white border-ink font-bold shadow-brutal-sm';
+                    } else if (stepDone) {
+                      stepClass = 'bg-ink text-paper border-ink font-semibold';
+                    }
+
+                    return `
+                      <button 
+                        onclick="setStep('${pet.id}', ${idx})" 
+                        title="Mudar para esta etapa" 
+                        class="border text-left p-1.5 transition text-[10px] font-mono flex flex-col justify-between h-14 leading-tight ${stepClass}"
+                      >
+                        <span class="text-[9px] opacity-70">#0${idx + 1}</span>
+                        <span class="line-clamp-2">${st}</span>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+
+                <!-- Quick notes snippet -->
+                <div class="pt-2 flex items-center justify-between font-mono text-[11px] text-ink/80">
+                  <div class="truncate max-w-[280px]">
+                    <span class="text-pink-pop font-bold">Obs:</span> ${pet.notes || 'Nenhuma observação.'}
+                  </div>
+                  <button onclick="openNoteModal('${pet.id}')" class="text-xs text-ink underline font-bold hover:text-pink-pop ml-2 shrink-0">
+                    <i class="fa-solid fa-pen"></i> Editar Nota
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- Right: Primary Actions (3 cols) -->
+              <div class="lg:col-span-3 flex flex-col gap-2 justify-center">
+                
+                ${!isDone ? `
+                  <button 
+                    onclick="advanceStep('${pet.id}')" 
+                    class="w-full bg-pink-pop hover:bg-ink text-white font-mono text-xs font-bold py-2.5 px-3 border-2 border-ink shadow-brutal hover:shadow-none transition flex items-center justify-center gap-2 uppercase"
+                  >
+                    <span>AVANÇAR ETAPA</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                ` : `
+                  <div class="bg-emerald-600 text-white font-mono text-xs text-center py-1.5 border border-ink font-bold">
+                    ✓ PROCEDIMENTO FINALIZADO
+                  </div>
+                  <button 
+                    onclick="dispatchWhatsApp('${pet.id}')" 
+                    class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-mono text-xs font-bold py-2.5 px-3 border-2 border-ink shadow-brutal hover:shadow-none transition flex items-center justify-center gap-2 uppercase"
+                  >
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>DISPARAR WHATSAPP</span>
+                  </button>
+                `}
+
+                <button 
+                  onclick="openNoteModal('${pet.id}')" 
+                  class="border border-ink bg-paper hover:bg-paper-dark font-mono text-[11px] py-1 text-center transition"
+                >
+                  <i class="fa-regular fa-clipboard"></i> Relatório Rápido
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Kanban Columns View
+    function renderKanban() {
+      // Clear columns
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`kanban-col-${i}`).innerHTML = '';
+      }
+
+      const filtered = petsData.filter(p => currentFilter === 'all' || p.type === currentFilter);
+      const counts = [0, 0, 0, 0];
+
+      filtered.forEach(pet => {
+        // Map pet.currentStep to 4 columns: 0: Waiting, 1: Running, 2: Finishing, 3: Done
+        let colIndex = 0;
+        if (pet.currentStep === 0) {
+          colIndex = 0;
+        } else if (pet.currentStep === 1) {
+          colIndex = 1;
+        } else if (pet.currentStep === pet.steps.length - 1) {
+          colIndex = 3;
+        } else {
+          colIndex = 2;
+        }
+
+        counts[colIndex]++;
+
+        const isDone = colIndex === 3;
+        const cardHtml = `
+          <div class="border-2 border-ink bg-paper p-3 text-xs font-mono shadow-brutal-sm space-y-2">
+            <div class="flex justify-between items-start">
+              <span class="font-bold bg-ink text-paper px-1.5 text-[10px]">⏰ ${pet.time}</span>
+              <span class="text-[10px] text-pink-pop font-bold">${pet.typeName.split(' ')[0]}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xl">${pet.avatarEmoji}</span>
+              <div>
+                <div class="font-bold text-sm font-body text-ink">${pet.name}</div>
+                <div class="text-[10px] text-ink/70">${pet.breed}</div>
+              </div>
+            </div>
+
+            <div class="text-[10px] bg-paper-dark p-1 border border-ink/30 truncate">
+              <strong>Etapa:</strong> ${pet.steps[pet.currentStep]}
+            </div>
+
+            <div class="flex items-center justify-between pt-1 border-t border-ink/20">
+              <button onclick="openNoteModal('${pet.id}')" class="text-[10px] underline hover:text-pink-pop">
+                Obs
+              </button>
+              
+              ${!isDone ? `
+                <button onclick="advanceStep('${pet.id}')" class="bg-pink-pop hover:bg-ink text-white px-2 py-0.5 border border-ink font-bold text-[10px]">
+                  AVANÇAR &rarr;
+                </button>
+              ` : `
+                <button onclick="dispatchWhatsApp('${pet.id}')" class="bg-emerald-600 text-white px-2 py-0.5 border border-ink font-bold text-[10px]">
+                  WHATSAPP
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+
+        document.getElementById(`kanban-col-${colIndex}`).insertAdjacentHTML('beforeend', cardHtml);
+      });
+
+      // Update counters
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`count-col-${i}`).textContent = counts[i];
+      }
+    }
+
+    function render() {
+      if (currentView === 'list') {
+        renderList();
+      } else {
+        renderKanban();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastMsg');
+      text.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3200);
+    }
+
+    // Startup
+    render();
+  </script>
+
+</body>
+</html>

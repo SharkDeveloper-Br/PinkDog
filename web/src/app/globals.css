@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-title: 'Bebas Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+body {
+  background-color: #FAF5EC;
+  color: #161616;
+  background-image:
+    radial-gradient(rgba(22, 22, 22, 0.05) 1px, transparent 0),
+    linear-gradient(to right, rgba(22, 22, 22, 0.02) 1px, transparent 1px);
+  background-size: 16px 16px, 32px 32px;
+}
+
+::selection {
+  background: #FF5882;
+  color: white;
+}

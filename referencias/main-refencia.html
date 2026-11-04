@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink Dog — Clínica Veterinária & Pet Care</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Bebas Neue, Space Grotesk, Architects Daughter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#F1ECDE',        /* Cor exata de fundo do GIF e das artes */
+            'paper-dark': '#E6DFCE',
+            'paper-light': '#F7F4EB',
+            ink: '#181818',
+            'pink-pop': '#F05D84',
+            'pink-soft': '#FFAEC0',
+            'salmon-tag': '#E2596A',
+            'retro-cyan': '#6EBDC3',
+            'retro-gold': '#E6A535'
+          },
+          fontFamily: {
+            title: ['"Bebas Neue"', 'sans-serif'],
+            body: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            hand: ['"Architects Daughter"', 'cursive']
+          },
+          boxShadow: {
+            'brutal': '4px 4px 0px #181818',
+            'brutal-lg': '7px 7px 0px #181818',
+            'brutal-sm': '2px 2px 0px #181818',
+            'brutal-pink': '4px 4px 0px #F05D84'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Halftone & Paper texture overlay idêntica ao fundo da animação */
+    body {
+      background-color: #F1ECDE;
+      color: #181818;
+      background-image: 
+        radial-gradient(rgba(24, 24, 24, 0.045) 1px, transparent 0),
+        linear-gradient(to right, rgba(24, 24, 24, 0.015) 1px, transparent 1px);
+      background-size: 14px 14px, 42px 42px;
+    }
+
+    /* Mix-blend multiply para fundir o GIF 100% de forma invisível */
+    .blend-illustration {
+      mix-blend-mode: multiply;
+      filter: contrast(1.03) brightness(1.01);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1ECDE;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #181818;
+      border-radius: 0px;
+    }
+
+    .bubble-float {
+      animation: bubbleFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes bubbleFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+  </style>
+</head>
+<body class="font-body selection:bg-pink-pop selection:text-white relative overflow-x-hidden min-h-screen">
+
+  <!-- HUD TOP BAR (Reference SYS_02 Style) -->
+  <header class="border-b-2 border-ink bg-paper/95 backdrop-blur sticky top-0 z-50 px-4 py-2 text-xs font-mono tracking-widest uppercase">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1.5 font-bold">
+          <span class="w-2.5 h-2.5 rounded-full bg-pink-pop animate-ping"></span>
+          SYS_02
+        </span>
+        <span class="hidden sm:inline border-l-2 border-ink/30 pl-4">PINKDOG.VET // V3.2</span>
+        <span class="hidden md:inline bg-ink text-paper px-2 py-0.5 text-[10px]">CHAPTER_01</span>
+      </div>
+
+      <div class="font-semibold text-center hidden lg:block text-ink tracking-[0.25em]">
+        THE PINK DOG CLINICAL &amp; SHAMPOO SOCIETY
+      </div>
+
+      <div class="flex items-center gap-4">
+        <span class="text-ink/70">VOL_01</span>
+        <a href="#agendamento" class="bg-pink-pop hover:bg-ink text-white hover:text-pink-soft border-2 border-ink px-3 py-1 font-bold text-xs shadow-brutal-sm transition-all transform active:translate-x-0.5 active:translate-y-0.5">
+          AGENDAR [+]
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION: O GIF FAZ PARTE NATURAL DO CENÁRIO -->
+  <section class="relative pt-4 pb-12 px-4 border-b-2 border-ink overflow-hidden bg-paper">
+    
+    <!-- Decorative barcode & tech coordinates -->
+    <div class="max-w-7xl mx-auto flex justify-between items-start mb-2 font-mono text-[11px] text-ink/70">
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col gap-0.5">
+          <span class="h-4 w-14 bg-ink inline-block" style="mask-image: repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 4px); -webkit-mask-image: repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 4px);"></span>
+          <span>NO. 883-PET</span>
+        </div>
+        <span class="hidden sm:inline font-mono">EST. 2024 / PROTOCOLO CARINHO INTEGRAL</span>
+      </div>
+      
+      <div class="hidden sm:flex items-center gap-4">
+        <span>LAT: 23.5505° S</span>
+        <span>LNG: 46.6333° W</span>
+        <span class="px-2 py-0.5 bg-paper-dark border border-ink text-[10px]">SEC_01 // HERO</span>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative min-h-[580px] lg:min-h-[660px] flex flex-col justify-between">
+      
+      <!-- GIANT EDITORIAL TYPOGRAPHY: 'PINK' e 'DOG' integradas ao fundo -->
+      <div class="absolute inset-0 flex justify-between items-center pointer-events-none select-none z-0">
+        <h1 class="font-title text-[105px] sm:text-[150px] md:text-[230px] lg:text-[290px] leading-none tracking-tighter text-ink opacity-90 pl-1 sm:pl-4">
+          PINK
+        </h1>
+        <h1 class="font-title text-[105px] sm:text-[150px] md:text-[230px] lg:text-[290px] leading-none tracking-tighter text-ink opacity-90 pr-1 sm:pr-4 text-right">
+          DOG
+        </h1>
+      </div>
+
+      <!-- MAIN ARTWORK DISPLAY: O GIF fundido perfeitamente no background -->
+      <div class="relative z-10 my-auto flex flex-col items-center justify-center pt-2">
+        
+        <!-- Retro Callout Bubble (como na Ref: "LOOK CLOSER: WET DOGS ARE HUGE") -->
+        <div class="self-end mr-4 sm:mr-28 mb-1 z-20">
+          <div class="border-2 border-ink bg-paper px-3 py-1 shadow-brutal-sm flex items-center gap-2 text-xs font-mono">
+            <span class="text-pink-pop font-bold">LOOK CLOSER:</span>
+            <span>WET DOGS ARE HUGE &amp; HAPPY</span>
+          </div>
+          <div class="w-0.5 h-6 bg-ink ml-12"></div>
+        </div>
+
+        <!-- GIF Container: Sem moldura pesada, fundo transparente integrado -->
+        <div class="relative group max-w-lg lg:max-w-2xl w-full flex justify-center">
+          
+          <!-- Elementos gráficos de quadrinho orbitando a cena -->
+          <div class="absolute -top-4 -left-4 text-retro-cyan text-2xl animate-bounce">
+            <i class="fa-solid fa-droplet"></i>
+          </div>
+          <div class="absolute top-1/4 -right-4 text-pink-pop text-xl bubble-float">
+            ✦ ✨
+          </div>
+
+          <!-- O GIF agora usa mix-blend-mode multiply sobre o mesmo tom de papel -->
+          <div class="relative flex flex-col items-center">
+            <img 
+              src="Girl_washing_dog_in_tub_e2a6e6d0.gif" 
+              alt="Veterinária Pink Dog lavando cachorro com amor na banheira" 
+              class="blend-illustration w-full max-h-[420px] sm:max-h-[480px] object-contain mx-auto transition-transform duration-300 hover:scale-[1.02]"
+              onerror="this.onerror=null; this.src='girl.png_dc43c7a5.jpg';"
+            />
+
+            <!-- WASH NOW Stamp Button circular (exatamente como na ref) -->
+            <a href="#agendamento" class="mt-[-28px] sm:mt-[-36px] z-30 bg-salmon-tag hover:bg-pink-pop text-white border-2 border-ink rounded-full px-6 py-3 font-title text-2xl tracking-wider shadow-brutal hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center gap-2 uppercase group">
+              <i class="fa-solid fa-soap text-lg group-hover:rotate-12 transition-transform"></i>
+              <span>WASH NOW</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM HERO HUD & METADATA -->
+      <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-6">
+        
+        <!-- Left: Manga quote & Navigation pills -->
+        <div class="space-y-3">
+          <p class="font-hand text-lg text-ink/90 italic">
+            * O mundo fica muito melhor quando você não leva tudo tão a sério e dá banho no seu cachorro.
+          </p>
+          <div class="border-2 border-ink bg-paper divide-y-2 divide-ink text-xs font-mono shadow-brutal-sm">
+            <a href="#servicos" class="flex items-center justify-between p-2 hover:bg-pink-pop hover:text-white transition">
+              <span>01 / BANHO DE ESPUMA &amp; HIDRATAÇÃO</span>
+              <span>&rarr;</span>
+            </a>
+            <a href="#clinica" class="flex items-center justify-between p-2 bg-pink-soft/30 hover:bg-pink-pop hover:text-white transition font-bold">
+              <span>02 / CONSULTÓRIO VETERINÁRIO</span>
+              <span>&rarr;</span>
+            </a>
+            <a href="#agendamento" class="flex items-center justify-between p-2 hover:bg-pink-pop hover:text-white transition">
+              <span>03 / AGENDAMENTO RÁPIDO</span>
+              <span>&rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Center: Scroll Indicator -->
+        <div class="flex justify-center pb-2">
+          <a href="#clinica" class="border-2 border-ink bg-paper px-4 py-2 text-xs font-mono uppercase tracking-widest shadow-brutal-sm hover:bg-ink hover:text-paper transition inline-flex items-center gap-2">
+            <span>SCROLL TO EXPLORE</span>
+            <i class="fa-solid fa-arrow-down animate-bounce"></i>
+          </a>
+        </div>
+
+        <!-- Right: Technical HUD Badges (Temp, Weather, Location from Ref) -->
+        <div class="font-mono text-xs space-y-2 md:text-right">
+          <div class="inline-block md:block bg-paper border-2 border-ink p-3 shadow-brutal-sm text-left">
+            <div class="text-[10px] text-pink-pop font-bold">// DADOS DO SPA &amp; ÁGUA</div>
+            <div class="flex items-center justify-between gap-4 mt-1">
+              <span><i class="fa-solid fa-temperature-half text-retro-cyan"></i> ÁGUA: 28°C MORNA</span>
+              <span class="bg-emerald-200 text-emerald-900 border border-emerald-800 px-1 text-[10px] font-bold">PERFEITO</span>
+            </div>
+            <div class="text-[10px] text-ink/70 mt-1">
+              SHAMPOO: NEUTRO DERMATOLÓGICO // SEM ESTRESSE
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- MARQUEE RUNNER -->
+  <div class="bg-ink text-paper py-2 font-mono text-xs border-b-2 border-ink overflow-hidden whitespace-nowrap select-none">
+    <div class="inline-block animate-[marquee_20s_linear_infinite]">
+      <span class="mx-4">🐾 CLÍNICA VETERINÁRIA COMPLETA</span> •
+      <span class="mx-4">✂️ ESTÉTICA ANIMAL COM AMOR</span> •
+      <span class="mx-4">🩺 EXAMES LABORATORIAIS NO LOCAL</span> •
+      <span class="mx-4">🌸 MEDICINA PREVENTIVA &amp; VACINAS ÉTICAS</span> •
+      <span class="mx-4">✨ AMBIENTE SEM ESTRESSE PARA CÃES E GATOS</span> •
+      <span class="mx-4">🐾 CLÍNICA VETERINÁRIA COMPLETA</span> •
+      <span class="mx-4">✂️ ESTÉTICA ANIMAL COM AMOR</span>
+    </div>
+  </div>
+
+  <style>
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+
+  <!-- SECTION 2: CUIDADOS CLÍNICOS & VETERINÁRIA (Ref 3: Girl examining dog with stethoscope) -->
+  <section id="clinica" class="py-16 px-4 border-b-2 border-ink bg-paper-dark/40 relative">
+    
+    <div class="max-w-7xl mx-auto">
+      
+      <!-- Section Title Badge -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <div class="font-mono text-xs text-pink-pop font-bold tracking-widest uppercase">// SECTION_02: MEDICINA VETERINÁRIA</div>
+          <h2 class="font-title text-5xl md:text-7xl text-ink tracking-tight uppercase">
+            CUIDADO CLÍNICO INTEGRAL
+          </h2>
+        </div>
+        <div class="border-2 border-ink bg-paper px-4 py-2 font-mono text-xs shadow-brutal-sm">
+          <span class="font-bold">STATUS:</span> PLANTONISTAS EM PRONTIDÃO
+        </div>
+      </div>
+
+      <!-- 2 Columns Grid: Art on Left, Medical Record HUD on Right -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left: Manga Clinic Illustration -->
+        <div class="lg:col-span-7">
+          <div class="relative border-2 border-ink bg-paper shadow-brutal-lg p-2 rounded-sm group overflow-hidden">
+            
+            <!-- Graphic HUD Tags pinned on image -->
+            <div class="absolute top-5 left-5 z-20 bg-paper border border-ink px-3 py-1 font-mono text-[11px] shadow-brutal-sm">
+              <span class="text-pink-pop font-bold">FIG_03:</span> AUSCULTA CARDÍACA &amp; PULMONAR
+            </div>
+            
+            <div class="absolute bottom-5 right-5 z-20 bg-ink text-paper px-3 py-1 font-mono text-[11px]">
+              DRª PINK // CRMV 44.920-SP
+            </div>
+
+            <!-- Image Ref 3 -->
+            <img 
+              src="Anime_girl_examining_dog_067e636f_2K.jpg" 
+              alt="Veterinária examinando cão golden retriever com estetoscópio" 
+              class="w-full h-auto object-cover rounded-sm transition-transform duration-500 group-hover:scale-[1.02]"
+              onerror="this.onerror=null; this.src='https://placehold.co/900x600/FAF5EC/121212?text=CONSULTORIO+VET+PINK+DOG';"
+            />
+          </div>
+          
+          <div class="flex items-center justify-between text-xs font-mono text-ink/70 mt-3 px-1">
+            <span>[ANATOMIAL REF: 100% MONITORADO]</span>
+            <span>CONSULTÓRIO HIGIENIZADO COM ULTRAVIOLETA</span>
+          </div>
+        </div>
+
+        <!-- Right: "PRONTUÁRIO CLÍNICO" Editorial Card -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <div class="border-2 border-ink bg-paper p-6 shadow-brutal relative">
+            <!-- Stamp -->
+            <div class="absolute -top-3 right-4 bg-salmon-tag text-white text-[11px] font-mono px-3 py-0.5 border border-ink shadow-brutal-sm uppercase font-bold tracking-wider">
+              ✦ AVALIAÇÃO NOTA 5.0
+            </div>
+
+            <div class="border-b-2 border-ink pb-3 mb-4">
+              <span class="text-xs font-mono text-pink-pop font-bold">// PROTOCOLO DE ATENDIMENTO</span>
+              <h3 class="font-title text-3xl text-ink">PRONTUÁRIO PINK DOG</h3>
+            </div>
+
+            <p class="text-sm text-ink/80 leading-relaxed mb-4">
+              Nossa equipe médica é treinada em <strong>Low Stress Handling</strong> (Manejo Amigável de Baixo Estresse). Cães e gatos são atendidos sem contenção agressiva, respeitando o ritmo e a personalidade de cada pet.
+            </p>
+
+            <!-- Checklist -->
+            <div class="space-y-2.5 font-mono text-xs mb-6">
+              <div class="flex items-center gap-2 p-1.5 border border-ink bg-paper-dark/30">
+                <i class="fa-solid fa-check text-pink-pop font-bold"></i>
+                <span>Aferição de batimentos, pressão arterial e oximetria</span>
+              </div>
+              <div class="flex items-center gap-2 p-1.5 border border-ink bg-paper-dark/30">
+                <i class="fa-solid fa-check text-pink-pop font-bold"></i>
+                <span>Vacinação ética importada com certificado digital</span>
+              </div>
+              <div class="flex items-center gap-2 p-1.5 border border-ink bg-paper-dark/30">
+                <i class="fa-solid fa-check text-pink-pop font-bold"></i>
+                <span>Exames de sangue rápidos com resultado no mesmo dia</span>
+              </div>
+              <div class="flex items-center gap-2 p-1.5 border border-ink bg-paper-dark/30">
+                <i class="fa-solid fa-check text-pink-pop font-bold"></i>
+                <span>Consultório exclusivo e silencioso</span>
+              </div>
+            </div>
+
+            <!-- Price/Services Quick Table -->
+            <div class="border border-ink bg-paper text-xs font-mono mb-6 divide-y divide-ink">
+              <div class="p-2 flex justify-between items-center">
+                <span>Consulta Clínica Geral</span>
+                <span class="font-bold text-pink-pop">R$ 140</span>
+              </div>
+              <div class="p-2 flex justify-between items-center">
+                <span>Vacina V10 / V8 Importada</span>
+                <span class="font-bold text-pink-pop">R$ 110</span>
+              </div>
+              <div class="p-2 flex justify-between items-center">
+                <span>Check-up Preventivo Anual</span>
+                <span class="font-bold text-pink-pop">R$ 290</span>
+              </div>
+            </div>
+
+            <a href="#agendamento" class="w-full text-center block bg-ink text-paper hover:bg-pink-pop hover:text-white py-3 border-2 border-ink font-mono font-bold text-sm tracking-wider shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition uppercase">
+              AGENDAR CONSULTA MÉDICA &rarr;
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: SERVIÇOS EM DESTAQUE (Brutalist Manga Grid) -->
+  <section id="servicos" class="py-16 px-4 border-b-2 border-ink">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+        <div>
+          <span class="font-mono text-xs text-pink-pop font-bold">// DEPARTAMENTOS DE ATENDIMENTO</span>
+          <h2 class="font-title text-5xl md:text-6xl text-ink">SERVIÇOS PINK DOG</h2>
+        </div>
+        <p class="font-mono text-xs text-ink/70 max-w-md">
+          Estrutura moderna planejada para bem-estar físico e estético, com produtos orgânicos e toalhas individuais seladas.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- Card 1 -->
+        <div class="border-2 border-ink bg-paper p-5 shadow-brutal hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-2xl text-pink-pop"><i class="fa-solid fa-bath"></i></span>
+              <span class="font-mono text-[11px] border border-ink px-1.5 bg-paper-dark">DEP_01</span>
+            </div>
+            <h3 class="font-title text-2xl text-ink mb-1">BANHO RELAX &amp; HIDRATAÇÃO</h3>
+            <p class="text-xs text-ink/80 leading-relaxed mb-4">
+              Banheira aquecida com massagem relaxante, produtos hipoalergênicos sem sulfatos e corte de unhas incluso.
+            </p>
+          </div>
+          <div class="border-t border-ink pt-3 flex justify-between items-center text-xs font-mono">
+            <span>A partir de</span>
+            <span class="font-bold text-sm text-pink-pop">R$ 65,00</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="border-2 border-ink bg-paper p-5 shadow-brutal hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-2xl text-retro-cyan"><i class="fa-solid fa-scissors"></i></span>
+              <span class="font-mono text-[11px] border border-ink px-1.5 bg-paper-dark">DEP_02</span>
+            </div>
+            <h3 class="font-title text-2xl text-ink mb-1">SPA &amp; TOSA DA RAÇA</h3>
+            <p class="text-xs text-ink/80 leading-relaxed mb-4">
+              Tosa tesoura, tosa bebê e higiênica respeitando a pelagem natural. Finalização suave sem perfume agressivo.
+            </p>
+          </div>
+          <div class="border-t border-ink pt-3 flex justify-between items-center text-xs font-mono">
+            <span>A partir de</span>
+            <span class="font-bold text-sm text-pink-pop">R$ 90,00</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="border-2 border-ink bg-paper p-5 shadow-brutal hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-2xl text-salmon-tag"><i class="fa-solid fa-stethoscope"></i></span>
+              <span class="font-mono text-[11px] border border-ink px-1.5 bg-paper-dark">DEP_03</span>
+            </div>
+            <h3 class="font-title text-2xl text-ink mb-1">CLÍNICA &amp; DIAGNÓSTICO</h3>
+            <p class="text-xs text-ink/80 leading-relaxed mb-4">
+              Consultas com especialistas em dermatologia, oftalmologia, nutrição e medicina preventiva para cães e gatos.
+            </p>
+          </div>
+          <div class="border-t border-ink pt-3 flex justify-between items-center text-xs font-mono">
+            <span>Plantão Diário</span>
+            <span class="font-bold text-sm text-pink-pop">08h às 21h</span>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="border-2 border-ink bg-paper p-5 shadow-brutal hover:-translate-y-1 transition duration-200 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-2xl text-retro-gold"><i class="fa-solid fa-syringe"></i></span>
+              <span class="font-mono text-[11px] border border-ink px-1.5 bg-paper-dark">DEP_04</span>
+            </div>
+            <h3 class="font-title text-2xl text-ink mb-1">VACINAS &amp; MICROCHIP</h3>
+            <p class="text-xs text-ink/80 leading-relaxed mb-4">
+              Importadas com refrigeração rigorosamente controlada. Carteirinha digital e microchipagem internacional.
+            </p>
+          </div>
+          <div class="border-t border-ink pt-3 flex justify-between items-center text-xs font-mono">
+            <span>Dose Única / Anual</span>
+            <span class="font-bold text-sm text-pink-pop">Sob Consulta</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 4: AGENDAMENTO / FICHA DO PACIENTE (Interactive Form) -->
+  <section id="agendamento" class="py-16 px-4 bg-paper relative border-b-2 border-ink">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="text-center mb-8">
+        <span class="font-mono text-xs text-pink-pop font-bold tracking-widest uppercase">// AGENDAMENTO ONLINE EM 60 SEGUNDOS</span>
+        <h2 class="font-title text-5xl md:text-6xl text-ink">FICHA DE CADASTRO DO PACIENTE</h2>
+        <p class="font-hand text-base text-ink/80">Preencha os dados e entraremos em contato via WhatsApp com a confirmação!</p>
+      </div>
+
+      <!-- Form Box styled as a Technical Manga Document -->
+      <div class="border-2 border-ink bg-paper p-6 sm:p-8 shadow-brutal-lg relative">
+        
+        <div class="flex items-center justify-between border-b-2 border-ink pb-4 mb-6">
+          <div class="font-mono text-xs">
+            <span class="font-bold text-pink-pop">DOC:</span> FORM_PET_REGISTER_2024
+          </div>
+          <div class="font-mono text-xs text-ink/70">
+            PINK DOG VET CENTER // SÃO PAULO
+          </div>
+        </div>
+
+        <form id="petForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Pet Name -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                Nome do Pet <span class="text-pink-pop">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="petName" 
+                required 
+                placeholder="Ex: Paçoca, Luna, Fred..." 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2.5 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              />
+            </div>
+
+            <!-- Pet Species / Breed -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                Espécie &amp; Raça <span class="text-pink-pop">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="petBreed" 
+                required 
+                placeholder="Ex: Golden Retriever, SRD, Gato Persa..." 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2.5 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              />
+            </div>
+
+            <!-- Service Selection -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                Serviço Desejado <span class="text-pink-pop">*</span>
+              </label>
+              <select 
+                id="serviceType" 
+                required 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2.5 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              >
+                <option value="">Selecione o serviço...</option>
+                <option value="Banho & Tosa Relaxante">01 // Banho &amp; Tosa Relaxante</option>
+                <option value="Consulta Veterinária de Rotina">02 // Consulta Veterinária de Rotina</option>
+                <option value="Vacinação & Microchip">03 // Vacinação &amp; Microchip</option>
+                <option value="Check-up Preventivo Completo">04 // Check-up Preventivo Completo</option>
+                <option value="Outro Procedimento">05 // Outro Procedimento</option>
+              </select>
+            </div>
+
+            <!-- Date -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                Data de Preferência <span class="text-pink-pop">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="prefDate" 
+                required 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              />
+            </div>
+
+            <!-- Tutor Name -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                Nome do Tutor(a) <span class="text-pink-pop">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="tutorName" 
+                required 
+                placeholder="Ex: Mariana Silva" 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2.5 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              />
+            </div>
+
+            <!-- Tutor WhatsApp -->
+            <div>
+              <label class="block font-mono text-xs font-bold uppercase mb-1">
+                WhatsApp com DDD <span class="text-pink-pop">*</span>
+              </label>
+              <input 
+                type="tel" 
+                id="tutorPhone" 
+                required 
+                placeholder="(11) 99999-9999" 
+                class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2.5 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+              />
+            </div>
+
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block font-mono text-xs font-bold uppercase mb-1">
+              Observações Médicas ou Comportamentais (Opcional)
+            </label>
+            <textarea 
+              id="notes" 
+              rows="3" 
+              placeholder="Ex: Ele tem medo de secador forte, alergia a shampoo com cheiro doce..." 
+              class="w-full bg-paper-dark/40 border-2 border-ink px-3 py-2 font-body text-sm focus:outline-none focus:bg-white focus:border-pink-pop transition"
+            ></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="w-full bg-pink-pop hover:bg-ink text-white font-title text-2xl tracking-widest py-3 border-2 border-ink shadow-brutal hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition duration-150 uppercase"
+          >
+            CONFIRMAR CADASTRO DO PACIENTE &rarr;
+          </button>
+        </form>
+
+        <!-- Dynamic Success Feedback Card -->
+        <div id="feedbackBox" class="hidden mt-6 p-4 border-2 border-ink bg-emerald-100 text-ink">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl text-emerald-700"><i class="fa-solid fa-circle-check"></i></span>
+            <div>
+              <h4 class="font-bold text-sm uppercase font-mono">Ficha Enviada com Sucesso!</h4>
+              <p class="text-xs" id="feedbackMessage">Entraremos em contato para confirmar o horário do seu melhor amigo.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER: TECHNICAL MAP & CREDITS (Ref 1 Style Coordinates) -->
+  <footer class="bg-paper border-t-2 border-ink py-12 px-4 text-xs font-mono">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+      
+      <!-- Brand column -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 bg-pink-pop border border-ink"></span>
+          <span class="font-title text-3xl tracking-wider">PINK DOG</span>
+        </div>
+        <p class="text-ink/80 text-[11px] leading-relaxed">
+          Veterinária afetiva, estética canina e cuidados felinos sob direção de quem realmente ama os animais.
+        </p>
+        <div class="text-[10px] text-ink/60">
+          REGISTRO CLÍNICO // CRMV-SP Nº 44920
+        </div>
+      </div>
+
+      <!-- Hours -->
+      <div>
+        <div class="font-bold uppercase text-pink-pop mb-2">// HORÁRIO DE ATENDIMENTO</div>
+        <ul class="space-y-1 text-ink/80">
+          <li class="flex justify-between"><span>Seg - Sex:</span> <span>08:00 - 20:00</span></li>
+          <li class="flex justify-between"><span>Sábados:</span> <span>08:30 - 18:00</span></li>
+          <li class="flex justify-between"><span>Domingos:</span> <span>Plantão Spa</span></li>
+        </ul>
+      </div>
+
+      <!-- Location / Coordinates (from Reference 1) -->
+      <div>
+        <div class="font-bold uppercase text-pink-pop mb-2">// LOCALIZAÇÃO &amp; GPS</div>
+        <div class="space-y-1 text-ink/80">
+          <div>Rua das Acácias, 420 - Pinheiros</div>
+          <div>São Paulo - SP, Brasil</div>
+          <div class="text-[10px] text-ink/60 mt-2">
+            30.0005° N, 100.0385° S<br>
+            ALT. 780M // SECTOR PINK
+          </div>
+        </div>
+      </div>
+
+      <!-- Social & Connect -->
+      <div>
+        <div class="font-bold uppercase text-pink-pop mb-2">// CANAIS DE CONTATO</div>
+        <div class="flex flex-col gap-2">
+          <a href="#" class="border border-ink bg-paper p-1.5 hover:bg-pink-pop hover:text-white transition flex items-center justify-between">
+            <span><i class="fa-brands fa-whatsapp"></i> (11) 98765-4321</span>
+            <span>&rarr;</span>
+          </a>
+          <a href="#" class="border border-ink bg-paper p-1.5 hover:bg-pink-pop hover:text-white transition flex items-center justify-between">
+            <span><i class="fa-brands fa-instagram"></i> @pinkdog.vet</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom credits -->
+    <div class="max-w-7xl mx-auto border-t border-ink pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-ink/70 gap-2">
+      <div>
+        &copy; 2024 PINK DOG VETERINARY &amp; PET CARE. ALL RIGHTS RESERVED.
+      </div>
+      <div class="flex items-center gap-4">
+        <span>SYS_VER 2.4.0</span>
+        <span>PROJETADO NO ESTILO MANGA RETRO</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SIMPLE FORM LOGIC -->
+  <script>
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const petName = document.getElementById('petName').value;
+      const service = document.getElementById('serviceType').value;
+      const tutor = document.getElementById('tutorName').value;
+      const feedback = document.getElementById('feedbackBox');
+      const feedbackMsg = document.getElementById('feedbackMessage');
+
+      feedbackMsg.innerHTML = `Obrigado, <strong>${tutor}</strong>! A ficha para o pet <strong>${petName}</strong> (${service}) foi processada com sucesso no sistema Pink Dog.`;
+      
+      feedback.classList.remove('hidden');
+      feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      // Reset fields
+      document.getElementById('petForm').reset();
+    }
+  </script>
+
+</body>
+</html>

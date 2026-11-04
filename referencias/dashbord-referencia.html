@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYS_02 // Pink Dog Admin & Clinical Dispatch</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#FAF5EC',
+            'paper-dark': '#EDE4D3',
+            'paper-cream': '#F4EDE0',
+            whiteboard: '#FCFAF6',
+            ink: '#141414',
+            'pink-pop': '#FF5882',
+            'pink-soft': '#FFAEC0',
+            'marker-red': '#E63946',
+            'marker-blue': '#1D3557',
+            'marker-green': '#2A9D8F',
+            'postit-yellow': '#FEF08A',
+            'postit-pink': '#FBCFE8',
+            'postit-cyan': '#CFFAFE',
+            'postit-orange': '#FFEDD5'
+          },
+          fontFamily: {
+            title: ['"Bebas Neue"', 'sans-serif'],
+            body: ['"Space Grotesk"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+            marker: ['"Caveat"', 'cursive']
+          },
+          boxShadow: {
+            'brutal': '3px 3px 0px #141414',
+            'brutal-lg': '6px 6px 0px #141414',
+            'brutal-sm': '2px 2px 0px #141414',
+            'board': 'inset 0 2px 8px rgba(0,0,0,0.06), 4px 5px 0px #141414'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FAF5EC;
+      color: #141414;
+      background-image: 
+        radial-gradient(rgba(20, 20, 20, 0.05) 1px, transparent 0),
+        linear-gradient(to right, rgba(20, 20, 20, 0.02) 1px, transparent 1px);
+      background-size: 18px 18px, 36px 36px;
+    }
+
+    /* Dry-erase whiteboard texture and sheen */
+    .whiteboard-surface {
+      background: #FFFFFF;
+      background-image: 
+        linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(246,243,235,0.6) 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(20,20,20,0.03) 32px);
+    }
+
+    /* Tape effect */
+    .washi-tape {
+      background-color: rgba(255, 88, 130, 0.35);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="font-body selection:bg-pink-pop selection:text-white min-h-screen pb-16">
+
+  <!-- TOP BAR / SYSTEM HUD -->
+  <header class="border-b-2 border-ink bg-paper/95 backdrop-blur sticky top-0 z-40 px-4 py-2 font-mono text-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Status Tag -->
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2 font-title text-2xl tracking-wider hover:text-pink-pop transition">
+          <span class="w-3 h-3 bg-pink-pop border border-ink animate-pulse"></span>
+          PINK DOG
+        </a>
+        <span class="border-l border-ink/40 pl-3 text-[11px] text-ink/70 hidden sm:inline">
+          SYS_02 // ADMIN &amp; DISPATCH CONSOLE
+        </span>
+        <span class="bg-emerald-200 text-emerald-950 border border-ink px-2 py-0.5 text-[10px] font-bold">
+          ● SALA DE ESPERA NORMAL
+        </span>
+      </div>
+
+      <!-- Center metadata -->
+      <div class="hidden lg:flex items-center gap-6 text-[11px] text-ink/80">
+        <span><i class="fa-solid fa-calendar-day text-pink-pop"></i> HOJE: <strong>QUARTA-FEIRA</strong></span>
+        <span><i class="fa-solid fa-clock text-pink-pop"></i> TURNO: <strong>08:00 - 20:00</strong></span>
+        <span><i class="fa-solid fa-user-doctor text-pink-pop"></i> PLANTÃO: <strong>DRª MAYA &amp; VET CAROL</strong></span>
+      </div>
+
+      <!-- Quick Action buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="openNewModal()" class="bg-pink-pop hover:bg-ink text-white font-mono text-xs font-bold px-3 py-1.5 border border-ink shadow-brutal-sm hover:shadow-none transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> NOVO AGENDAMENTO
+        </button>
+        <a href="index.html" class="bg-paper border border-ink hover:bg-paper-dark px-2.5 py-1.5 text-[11px] shadow-brutal-sm">
+          <i class="fa-solid fa-arrow-left"></i> SITE
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-6 space-y-8">
+    
+    <!-- STATS HUD: CARDS DE CONTROLE RÁPIDO -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      
+      <!-- Card 1 -->
+      <div class="border-2 border-ink bg-paper p-4 shadow-brutal relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-mono font-bold tracking-wider text-ink/60 uppercase">// 01: PACIENTES HOJE</span>
+          <span class="w-2 h-2 rounded-full bg-pink-pop"></span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <div class="font-title text-5xl text-ink">18</div>
+          <span class="text-[11px] font-mono text-emerald-700 font-bold">+3 encaixes</span>
+        </div>
+        <div class="text-[11px] font-mono text-ink/70 mt-1 border-t border-ink/20 pt-2 flex justify-between">
+          <span>Finalizados: 11</span>
+          <span class="font-bold">Restam: 7</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="border-2 border-ink bg-paper p-4 shadow-brutal relative">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-mono font-bold tracking-wider text-ink/60 uppercase">// 02: SPA &amp; BANHOS</span>
+          <i class="fa-solid fa-soap text-pink-pop text-sm"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <div class="font-title text-5xl text-ink">12</div>
+          <span class="text-[11px] font-mono text-ink/70">agendados</span>
+        </div>
+        <div class="text-[11px] font-mono text-ink/70 mt-1 border-t border-ink/20 pt-2 flex justify-between">
+          <span>Banheira 01: Ocupada</span>
+          <span class="text-pink-pop font-bold">2 na tosa</span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="border-2 border-ink bg-paper p-4 shadow-brutal relative">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-mono font-bold tracking-wider text-ink/60 uppercase">// 03: CONSULTAS MÉDICAS</span>
+          <i class="fa-solid fa-stethoscope text-marker-blue text-sm"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-2">
+          <div class="font-title text-5xl text-ink">06</div>
+          <span class="text-[11px] font-mono text-ink/70">procedimentos</span>
+        </div>
+        <div class="text-[11px] font-mono text-ink/70 mt-1 border-t border-ink/20 pt-2 flex justify-between">
+          <span>2 Vacinas</span>
+          <span class="text-marker-blue font-bold">1 Check-up Geral</span>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="border-2 border-ink bg-paper p-4 shadow-brutal relative">
+        <div class="flex justify-between items-start">
+          <span class="text-[10px] font-mono font-bold tracking-wider text-ink/60 uppercase">// 04: PREVISÃO FATURAMENTO</span>
+          <i class="fa-solid fa-receipt text-emerald-700 text-sm"></i>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <span class="font-mono text-sm font-bold">R$</span>
+          <div class="font-title text-5xl text-ink">3.480</div>
+        </div>
+        <div class="text-[11px] font-mono text-ink/70 mt-1 border-t border-ink/20 pt-2 flex justify-between">
+          <span class="text-emerald-700 font-bold">85% Liquidado</span>
+          <span>Ticket: R$ 193</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- WHITEBOARD CALENDAR: O QUADRO BRANCO DA SEMANA -->
+    <section class="space-y-3">
+      
+      <!-- Header of Whiteboard with Dry-erase markers tray -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 bg-ink"></span>
+            <span class="font-mono text-xs font-bold uppercase tracking-widest text-pink-pop">// WHITEBOARD DISPATCHER</span>
+          </div>
+          <h2 class="font-title text-4xl sm:text-5xl text-ink tracking-tight">QUADRO SEMANAL DE ATENDIMENTOS</h2>
+        </div>
+
+        <!-- Filter Buttons Styled as Dry-Erase Caps -->
+        <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+          <span class="text-ink/60 text-[11px] mr-1 hidden sm:inline">FILTRO:</span>
+          <button onclick="filterType('all')" class="filter-btn active bg-ink text-white px-3 py-1 border border-ink shadow-brutal-sm font-bold">TODOS</button>
+          <button onclick="filterType('banho')" class="filter-btn bg-paper-dark hover:bg-pink-soft px-3 py-1 border border-ink shadow-brutal-sm">BANHO &amp; TOSA</button>
+          <button onclick="filterType('clinica')" class="filter-btn bg-paper-dark hover:bg-sky-200 px-3 py-1 border border-ink shadow-brutal-sm">CLÍNICA / VET</button>
+          <button onclick="filterType('vacina')" class="filter-btn bg-paper-dark hover:bg-amber-200 px-3 py-1 border border-ink shadow-brutal-sm">VACINAS</button>
+        </div>
+      </div>
+
+      <!-- The Real Whiteboard Frame -->
+      <div class="border-[6px] border-[#2C2C2C] rounded-sm p-3 sm:p-5 bg-[#ECE7DC] shadow-brutal-lg relative">
+        
+        <!-- Top Board Clips / Screws -->
+        <div class="absolute top-1 left-4 w-3 h-3 rounded-full border border-ink bg-gray-400"></div>
+        <div class="absolute top-1 right-4 w-3 h-3 rounded-full border border-ink bg-gray-400"></div>
+
+        <!-- Whiteboard Surface Inside -->
+        <div class="whiteboard-surface border-2 border-ink/40 p-3 sm:p-4 rounded-sm shadow-board min-h-[520px]">
+          
+          <!-- Whiteboard handwritten title note -->
+          <div class="flex justify-between items-center mb-4 border-b-2 border-ink/20 pb-2">
+            <div class="flex items-center gap-3">
+              <span class="font-marker text-2xl text-marker-blue font-bold tracking-wide">
+                Semana 45 • Protocolo de Banho Silencioso &amp; Consultas
+              </span>
+              <span class="font-hand text-xs bg-postit-yellow px-2 py-0.5 border border-ink/30 rotate-1 shadow-sm hidden md:inline">
+                ⚠️ Cuidado com Pipoca: não gosta de secador forte!
+              </span>
+            </div>
+            
+            <div class="flex items-center gap-2 font-mono text-xs text-ink/70">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span> 32 Confirmados
+            </div>
+          </div>
+
+          <!-- 6 Columns: Segunda a Sábado -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+            
+            <!-- SEGUNDA -->
+            <div class="bg-white/80 border border-ink/30 p-2.5 rounded-sm flex flex-col justify-between min-h-[420px]">
+              <div>
+                <div class="border-b-2 border-ink pb-1 mb-2 flex justify-between items-baseline">
+                  <span class="font-title text-xl tracking-wide">SEG // 02</span>
+                  <span class="font-mono text-[10px] text-ink/60">3 agendados</span>
+                </div>
+                
+                <div class="space-y-2.5">
+                  <!-- Appointment 1: Completed -->
+                  <div onclick="openPatientModal('Pipoca', 'Golden Retriever', 'Mariana Bastos', 'Banho Relax & Escovação', '09:00', 'Concluído', 'Sem alterações cutâneas. Comportou-se perfeitamente.')" class="appointment-card cursor-pointer group bg-postit-yellow/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition transform hover:-rotate-1" data-service="banho">
+                    <div class="flex justify-between items-start">
+                      <span class="font-mono text-[10px] font-bold text-ink/80">09:00</span>
+                      <span class="text-[9px] font-mono px-1 bg-emerald-200 border border-ink text-emerald-900 font-bold">CONCLUÍDO</span>
+                    </div>
+                    <div class="font-bold text-sm mt-1 text-ink group-hover:text-pink-pop transition">🐶 Pipoca</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Golden Retriever</div>
+                    <div class="mt-1 text-[11px] font-medium border-t border-ink/20 pt-1 text-pink-pop font-mono">
+                      🚿 Banho Relax
+                    </div>
+                  </div>
+
+                  <!-- Appointment 2: Completed -->
+                  <div onclick="openPatientModal('Thor', 'Bulldog Francês', 'Carlos Prado', 'Consulta Dermatológica', '11:30', 'Concluído', 'Coleta de raspado de pele para citologia.')" class="appointment-card cursor-pointer group bg-postit-cyan/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="clinica">
+                    <div class="flex justify-between items-start">
+                      <span class="font-mono text-[10px] font-bold">11:30</span>
+                      <span class="text-[9px] font-mono px-1 bg-emerald-200 border border-ink text-emerald-900 font-bold">CONCLUÍDO</span>
+                    </div>
+                    <div class="font-bold text-sm mt-1 text-ink">🐾 Thor</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Bulldog Francês</div>
+                    <div class="mt-1 text-[11px] font-medium border-t border-ink/20 pt-1 text-marker-blue font-mono">
+                      🩺 Dermato Geral
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/20 mt-2">
+                Fim do Turno
+              </div>
+            </div>
+
+            <!-- TERÇA -->
+            <div class="bg-white/80 border border-ink/30 p-2.5 rounded-sm flex flex-col justify-between min-h-[420px]">
+              <div>
+                <div class="border-b-2 border-ink pb-1 mb-2 flex justify-between items-baseline">
+                  <span class="font-title text-xl tracking-wide">TER // 03</span>
+                  <span class="font-mono text-[10px] text-ink/60">3 agendados</span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <!-- Appointment -->
+                  <div onclick="openPatientModal('Nina', 'Shih Tzu', 'Beatriz Lima', 'Tosa Baby & Ozônio', '10:00', 'Concluído', 'Tosa higiênica e banho de ozônio para controle de odores.')" class="appointment-card cursor-pointer group bg-postit-pink/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition rotate-1" data-service="banho">
+                    <div class="flex justify-between items-start">
+                      <span class="font-mono text-[10px] font-bold">10:00</span>
+                      <span class="text-[9px] font-mono px-1 bg-emerald-200 border border-ink text-emerald-900 font-bold">CONCLUÍDO</span>
+                    </div>
+                    <div class="font-bold text-sm mt-1 text-ink">✂️ Nina</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Shih Tzu (5kg)</div>
+                    <div class="mt-1 text-[11px] font-medium border-t border-ink/20 pt-1 text-pink-pop font-mono">
+                      ✨ Tosa Baby + Spa
+                    </div>
+                  </div>
+
+                  <!-- Appointment -->
+                  <div onclick="openPatientModal('Simba', 'Gato Siamês', 'Fernanda M.', 'Vacina V4 Felina', '14:30', 'Concluído', 'Aplicação suave sem estresse com feromônio Feliway.')" class="appointment-card cursor-pointer group bg-postit-orange/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="vacina">
+                    <div class="flex justify-between items-start">
+                      <span class="font-mono text-[10px] font-bold">14:30</span>
+                      <span class="text-[9px] font-mono px-1 bg-emerald-200 border border-ink text-emerald-900 font-bold">CONCLUÍDO</span>
+                    </div>
+                    <div class="font-bold text-sm mt-1 text-ink">🐱 Simba</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Gato Siamês</div>
+                    <div class="mt-1 text-[11px] font-medium border-t border-ink/20 pt-1 text-amber-800 font-mono">
+                      💉 V4 + Raiva
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/20 mt-2">
+                Fim do Turno
+              </div>
+            </div>
+
+            <!-- QUARTA (HOJE - HIGHLIGHTED) -->
+            <div class="bg-amber-50/70 border-2 border-pink-pop p-2.5 rounded-sm flex flex-col justify-between min-h-[420px] shadow-sm relative">
+              <div class="washi-tape absolute -top-2 left-6 right-6 h-4 transform -rotate-1"></div>
+
+              <div>
+                <div class="border-b-2 border-pink-pop pb-1 mb-2 flex justify-between items-baseline mt-1">
+                  <span class="font-title text-xl tracking-wide text-pink-pop font-bold">QUA // 04 [HOJE]</span>
+                  <span class="font-mono text-[10px] font-bold bg-pink-pop text-white px-1">4 ATIVOS</span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <!-- Active Now -->
+                  <div onclick="openPatientModal('Paçoca', 'Golden Retriever', 'Lucas Mendes', 'Banho Terapêutico & Escova', '09:30', 'Em Andamento', 'Água a 28°C morna conforme protocolo. Na fase de secagem silenciosa.')" class="appointment-card cursor-pointer group bg-postit-yellow border-2 border-ink p-2 text-xs shadow-brutal-sm transition -rotate-1 relative" data-service="banho">
+                    <span class="absolute -top-1.5 -right-1 bg-marker-red text-white text-[8px] font-mono px-1 font-bold animate-pulse">AGORA NA BANHEIRA</span>
+                    <div class="font-mono text-[10px] font-bold">09:30</div>
+                    <div class="font-bold text-sm text-ink group-hover:text-pink-pop">🐕 Paçoca</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Golden Ret. (32kg)</div>
+                    <div class="mt-1 text-[11px] font-bold text-pink-pop font-mono">
+                      🧼 Banho com Hidratação
+                    </div>
+                  </div>
+
+                  <!-- Next -->
+                  <div onclick="openPatientModal('Mel', 'Spitz Alemão', 'Juliana Rios', 'Consulta Rotina + Olhos', '11:00', 'Aguardando', 'Avaliação de secreção ocular crônica.')" class="appointment-card cursor-pointer group bg-white border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="clinica">
+                    <div class="flex justify-between items-start">
+                      <span class="font-mono text-[10px] font-bold text-marker-blue">11:00</span>
+                      <span class="text-[9px] font-mono px-1 bg-amber-100 text-amber-900 border border-ink font-bold">ESPERA</span>
+                    </div>
+                    <div class="font-bold text-sm mt-1 text-ink">🦊 Mel</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Spitz Alemão</div>
+                    <div class="mt-1 text-[11px] font-medium text-marker-blue font-mono">
+                      🩺 Oftalmo &amp; Check
+                    </div>
+                  </div>
+
+                  <!-- Afternoon -->
+                  <div onclick="openPatientModal('Chico', 'SRD Porte Médio', 'Roberto Alves', 'Banho Antipulgas + Tosa', '14:00', 'Confirmado', 'Animal resgatado, necessário manejo calmo.')" class="appointment-card cursor-pointer group bg-white border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="banho">
+                    <div class="font-mono text-[10px] font-bold">14:00</div>
+                    <div class="font-bold text-sm text-ink">🐕‍🦺 Chico</div>
+                    <div class="text-[11px] text-ink/70 font-mono">SRD (14kg)</div>
+                    <div class="mt-1 text-[11px] text-pink-pop font-mono">
+                      🚿 Banho &amp; Tosa Higiênica
+                    </div>
+                  </div>
+
+                  <!-- Afternoon 2 -->
+                  <div onclick="openPatientModal('Luna', 'Labrador Amarelo', 'Gabriela Santos', 'Vacina V10 Importada', '16:30', 'Confirmado', 'Reforço anual da V10 e Antirrábica.')" class="appointment-card cursor-pointer group bg-white border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="vacina">
+                    <div class="font-mono text-[10px] font-bold text-amber-800">16:30</div>
+                    <div class="font-bold text-sm text-ink">🦮 Luna</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Labrador Retriever</div>
+                    <div class="mt-1 text-[11px] text-amber-800 font-mono">
+                      💉 V10 Reforço Anual
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-pink-pop/10 text-pink-pop font-mono text-[10px] text-center py-1 border border-pink-pop font-bold mt-2">
+                HOJE EM OPERAÇÃO
+              </div>
+            </div>
+
+            <!-- QUINTA -->
+            <div class="bg-white/80 border border-ink/30 p-2.5 rounded-sm flex flex-col justify-between min-h-[420px]">
+              <div>
+                <div class="border-b-2 border-ink pb-1 mb-2 flex justify-between items-baseline">
+                  <span class="font-title text-xl tracking-wide">QUI // 05</span>
+                  <span class="font-mono text-[10px] text-ink/60">3 agendados</span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <div onclick="openPatientModal('Bono', 'Beagle', 'Thiago Lima', 'Banho & Corte de Unhas', '09:00', 'Agendado', 'Muito brincalhão e enérgico.')" class="appointment-card cursor-pointer group bg-white border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="banho">
+                    <div class="font-mono text-[10px] font-bold">09:00</div>
+                    <div class="font-bold text-sm text-ink">🐶 Bono</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Beagle (12kg)</div>
+                    <div class="mt-1 text-[11px] text-pink-pop font-mono">🚿 Banho Completo</div>
+                  </div>
+
+                  <div onclick="openPatientModal('Frida', 'Bulldog Inglês', 'Renata Gusmão', 'Consulta Cardíaca', '11:00', 'Agendado', 'Ecocardiograma e aferição de pressão.')" class="appointment-card cursor-pointer group bg-postit-cyan/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition -rotate-1" data-service="clinica">
+                    <div class="font-mono text-[10px] font-bold text-marker-blue">11:00</div>
+                    <div class="font-bold text-sm text-ink">🩺 Frida</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Bulldog Inglês</div>
+                    <div class="mt-1 text-[11px] text-marker-blue font-mono">❤️ Cardio Especial</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/20 mt-2">
+                2 vagas à tarde
+              </div>
+            </div>
+
+            <!-- SEXTA -->
+            <div class="bg-white/80 border border-ink/30 p-2.5 rounded-sm flex flex-col justify-between min-h-[420px]">
+              <div>
+                <div class="border-b-2 border-ink pb-1 mb-2 flex justify-between items-baseline">
+                  <span class="font-title text-xl tracking-wide">SEX // 06</span>
+                  <span class="font-mono text-[10px] text-ink/60">4 agendados</span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <div onclick="openPatientModal('Zeus', 'Rottweiler', 'Marcos Vinícius', 'Banho de Ozônio & Tosa Higiênica', '08:30', 'Agendado', 'Necessita de 2 cuidadores para manejo calmo.')" class="appointment-card cursor-pointer group bg-white border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="banho">
+                    <div class="font-mono text-[10px] font-bold">08:30</div>
+                    <div class="font-bold text-sm text-ink">🐕 Zeus</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Rottweiler (45kg)</div>
+                    <div class="mt-1 text-[11px] text-pink-pop font-mono">🛁 Banho Ozônio</div>
+                  </div>
+
+                  <div onclick="openPatientModal('Belinha', 'Maltês', 'Clara F.', 'Tosa da Raça Tesoura', '14:00', 'Agendado', 'Tosa completa na tesoura para exposição.')" class="appointment-card cursor-pointer group bg-postit-pink/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition rotate-1" data-service="banho">
+                    <div class="font-mono text-[10px] font-bold">14:00</div>
+                    <div class="font-bold text-sm text-ink">✂️ Belinha</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Maltês</div>
+                    <div class="mt-1 text-[11px] text-pink-pop font-mono">✨ Tosa Tesoura</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center font-mono text-[10px] text-ink/50 pt-3 border-t border-dashed border-ink/20 mt-2">
+                Turno Intenso
+              </div>
+            </div>
+
+            <!-- SÁBADO -->
+            <div class="bg-white/80 border border-ink/30 p-2.5 rounded-sm flex flex-col justify-between min-h-[420px]">
+              <div>
+                <div class="border-b-2 border-ink pb-1 mb-2 flex justify-between items-baseline">
+                  <span class="font-title text-xl tracking-wide text-marker-red">SÁB // 07</span>
+                  <span class="font-mono text-[10px] text-marker-red font-bold">LOTADO</span>
+                </div>
+
+                <div class="space-y-2.5">
+                  <div onclick="openPatientModal('Tobby & Max', 'Golden Retriever (dupla)', 'Arthur N.', 'Combo Duplo de Banho', '09:00', 'Agendado', 'Irmãos da mesma ninhada, tomar banho juntos.')" class="appointment-card cursor-pointer group bg-postit-yellow/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition" data-service="banho">
+                    <div class="font-mono text-[10px] font-bold">09:00 - 11:30</div>
+                    <div class="font-bold text-sm text-ink">🐕🐕 Tobby &amp; Max</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Goldens Dupla</div>
+                    <div class="mt-1 text-[11px] text-pink-pop font-mono font-bold">🚿 Super Combo Spa</div>
+                  </div>
+
+                  <div onclick="openPatientModal('Amora', 'Gata Angorá', 'Paula Teix.', 'Check-up Geriátrico', '11:45', 'Agendado', 'Paciente idosa (13 anos), cuidados especiais com articulações.')" class="appointment-card cursor-pointer group bg-postit-cyan/90 border border-ink p-2 text-xs shadow-sm hover:shadow-brutal-sm transition -rotate-1" data-service="clinica">
+                    <div class="font-mono text-[10px] font-bold text-marker-blue">11:45</div>
+                    <div class="font-bold text-sm text-ink">🐱 Amora</div>
+                    <div class="text-[11px] text-ink/70 font-mono">Angorá (13 anos)</div>
+                    <div class="mt-1 text-[11px] text-marker-blue font-mono">🩺 Check Geriátrico</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-red-100 text-red-900 border border-red-300 text-center font-mono text-[10px] py-1 mt-2 font-bold">
+                AGENDA FECHADA
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Chalk / Marker tray simulation -->
+          <div class="mt-4 pt-3 border-t-2 border-ink/20 flex flex-wrap items-center justify-between text-xs font-mono text-ink/70 gap-2">
+            <div class="flex items-center gap-3">
+              <span class="inline-block w-8 h-2 bg-pink-pop rounded-full border border-ink"></span>
+              <span class="inline-block w-8 h-2 bg-marker-blue rounded-full border border-ink"></span>
+              <span class="inline-block w-8 h-2 bg-marker-green rounded-full border border-ink"></span>
+              <span class="text-[11px]">Canetões de quadro magnético sincronizados em tempo real</span>
+            </div>
+            <div>
+              <span class="font-bold text-ink">DICA:</span> Clique em qualquer post-it para abrir o prontuário completo do pet.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: TABELA DE GESTÃO DE PACIENTES RECENTES -->
+    <section class="border-2 border-ink bg-paper p-5 sm:p-6 shadow-brutal-lg">
+      
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-ink pb-4 mb-4">
+        <div>
+          <span class="font-mono text-xs text-pink-pop font-bold">// REGISTRO DE PACIENTES &amp; TUTORES</span>
+          <h3 class="font-title text-3xl sm:text-4xl text-ink">HISTÓRICO CLÍNICO E RECENTES</h3>
+        </div>
+
+        <!-- Search input styled as technical log -->
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-ink/50"></i>
+            <input 
+              type="text" 
+              id="patientSearch" 
+              onkeyup="searchTable()" 
+              placeholder="Buscar pet, tutor ou raça..." 
+              class="bg-paper-dark border-2 border-ink pl-8 pr-3 py-1.5 font-mono text-xs focus:outline-none focus:bg-white w-64"
+            />
+          </div>
+          <button onclick="exportCSV()" class="border-2 border-ink bg-ink text-paper px-3 py-1.5 font-mono text-xs hover:bg-pink-pop hover:text-white transition">
+            <i class="fa-solid fa-download"></i> EXPORTAR
+          </button>
+        </div>
+      </div>
+
+      <!-- Responsive Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left font-mono text-xs divide-y-2 divide-ink" id="patientsTable">
+          <thead class="bg-paper-dark font-bold text-ink uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="py-2.5 px-3 border-r border-ink">ID / FICHA</th>
+              <th class="py-2.5 px-3 border-r border-ink">PACIENTE (PET)</th>
+              <th class="py-2.5 px-3 border-r border-ink">ESPÉCIE / RAÇA</th>
+              <th class="py-2.5 px-3 border-r border-ink">TUTOR RESPONSÁVEL</th>
+              <th class="py-2.5 px-3 border-r border-ink">SERVIÇO PRINCIPAL</th>
+              <th class="py-2.5 px-3 border-r border-ink">STATUS ATUAL</th>
+              <th class="py-2.5 px-3 text-right">AÇÕES</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-ink/30 bg-white/60">
+            
+            <!-- Row 1 -->
+            <tr class="hover:bg-pink-soft/20 transition">
+              <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-0921</td>
+              <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">
+                <span class="text-base">🐕</span> Paçoca
+              </td>
+              <td class="py-3 px-3 border-r border-ink/30">Golden Retriever • 32kg</td>
+              <td class="py-3 px-3 border-r border-ink/30">Lucas Mendes (11) 98123-4567</td>
+              <td class="py-3 px-3 border-r border-ink/30 text-pink-pop font-bold">Banho Especial c/ Hidratação</td>
+              <td class="py-3 px-3 border-r border-ink/30">
+                <span class="bg-pink-pop text-white px-2 py-0.5 border border-ink text-[10px] font-bold">EM BANHO</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="openPatientModal('Paçoca', 'Golden Retriever', 'Lucas Mendes', 'Banho Especial', '09:30', 'Em Andamento', 'Cão dócil, pele saudável, usando shampoo hipoalergênico.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+                  VER PRONTUÁRIO &rarr;
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr class="hover:bg-pink-soft/20 transition">
+              <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-0920</td>
+              <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">
+                <span class="text-base">🦊</span> Mel
+              </td>
+              <td class="py-3 px-3 border-r border-ink/30">Spitz Alemão • 4kg</td>
+              <td class="py-3 px-3 border-r border-ink/30">Juliana Rios (11) 97234-9988</td>
+              <td class="py-3 px-3 border-r border-ink/30 text-marker-blue font-bold">Consulta Oftalmológica</td>
+              <td class="py-3 px-3 border-r border-ink/30">
+                <span class="bg-amber-100 text-amber-900 px-2 py-0.5 border border-ink text-[10px] font-bold">EM ESPERA</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="openPatientModal('Mel', 'Spitz Alemão', 'Juliana Rios', 'Consulta Oftalmológica', '11:00', 'Aguardando', 'Mancha avermelhada perto do ducto lacrimal direito.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+                  VER PRONTUÁRIO &rarr;
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr class="hover:bg-pink-soft/20 transition">
+              <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-0919</td>
+              <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">
+                <span class="text-base">🐶</span> Pipoca
+              </td>
+              <td class="py-3 px-3 border-r border-ink/30">Golden Retriever • 28kg</td>
+              <td class="py-3 px-3 border-r border-ink/30">Mariana Bastos (11) 99112-0044</td>
+              <td class="py-3 px-3 border-r border-ink/30 text-pink-pop font-bold">Banho Relax + Tosa</td>
+              <td class="py-3 px-3 border-r border-ink/30">
+                <span class="bg-emerald-200 text-emerald-950 px-2 py-0.5 border border-ink text-[10px] font-bold">FINALIZADO</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="openPatientModal('Pipoca', 'Golden Retriever', 'Mariana Bastos', 'Banho Relax', '09:00', 'Concluído', 'Tosa higiênica e unhas aparadas.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+                  VER PRONTUÁRIO &rarr;
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 4 -->
+            <tr class="hover:bg-pink-soft/20 transition">
+              <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-0918</td>
+              <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">
+                <span class="text-base">🐱</span> Simba
+              </td>
+              <td class="py-3 px-3 border-r border-ink/30">Siamês • 3.5kg</td>
+              <td class="py-3 px-3 border-r border-ink/30">Fernanda M. (11) 98845-6677</td>
+              <td class="py-3 px-3 border-r border-ink/30 text-amber-800 font-bold">Vacinação V4 Ética</td>
+              <td class="py-3 px-3 border-r border-ink/30">
+                <span class="bg-emerald-200 text-emerald-950 px-2 py-0.5 border border-ink text-[10px] font-bold">FINALIZADO</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="openPatientModal('Simba', 'Siamês', 'Fernanda M.', 'Vacina V4', '14:30', 'Concluído', 'Lote de vacina Zoetis gravado na ficha.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+                  VER PRONTUÁRIO &rarr;
+                </button>
+              </td>
+            </tr>
+
+            <!-- Row 5 -->
+            <tr class="hover:bg-pink-soft/20 transition">
+              <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-0917</td>
+              <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">
+                <span class="text-base">🐕‍🦺</span> Chico
+              </td>
+              <td class="py-3 px-3 border-r border-ink/30">SRD Amarelo • 14kg</td>
+              <td class="py-3 px-3 border-r border-ink/30">Roberto Alves (11) 97722-1133</td>
+              <td class="py-3 px-3 border-r border-ink/30 text-pink-pop font-bold">Banho Terapêutico</td>
+              <td class="py-3 px-3 border-r border-ink/30">
+                <span class="bg-sky-100 text-sky-900 px-2 py-0.5 border border-ink text-[10px] font-bold">CONFIRMADO</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <button onclick="openPatientModal('Chico', 'SRD', 'Roberto Alves', 'Banho Terapêutico', '14:00', 'Confirmado', 'Sensibilidade na pata traseira esquerda.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+                  VER PRONTUÁRIO &rarr;
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL / GAVETA DE PRONTUÁRIO CLÍNICO DO PET -->
+  <div id="patientModal" class="fixed inset-0 bg-ink/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="border-4 border-ink bg-paper max-w-2xl w-full shadow-brutal-lg relative overflow-hidden max-h-[90vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="bg-ink text-paper px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 bg-pink-pop"></span>
+          <span class="font-mono text-xs uppercase tracking-widest font-bold">PRONTUÁRIO VETERINÁRIO &bull; PINK DOG CLINIC</span>
+        </div>
+        <button onclick="closeModal()" class="text-paper hover:text-pink-pop text-lg font-mono">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6">
+        
+        <!-- Header Banner do Pet -->
+        <div class="flex flex-wrap items-center justify-between border-b-2 border-ink pb-4 gap-4">
+          <div>
+            <span class="font-mono text-xs text-pink-pop font-bold" id="modalPetId">// FICHA #PK-LIVE</span>
+            <h3 class="font-title text-4xl text-ink" id="modalPetName">Nome do Pet</h3>
+            <p class="font-mono text-xs text-ink/70" id="modalPetBreed">Raça e Detalhes</p>
+          </div>
+          <div class="text-right">
+            <span id="modalStatusBadge" class="bg-pink-pop text-white px-3 py-1 font-mono text-xs border border-ink font-bold shadow-brutal-sm">
+              STATUS
+            </span>
+            <div class="font-mono text-xs text-ink/60 mt-2" id="modalTimeSlot">Horário: 00:00</div>
+          </div>
+        </div>
+
+        <!-- 2 Columns Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+          
+          <div class="border border-ink bg-paper-dark p-3 space-y-1">
+            <div class="text-[10px] text-ink/60 uppercase font-bold">// DADOS DO TUTOR</div>
+            <div class="font-bold text-sm text-ink" id="modalTutorName">-</div>
+            <div class="text-ink/80">WhatsApp: (11) 98000-0000</div>
+            <div class="text-ink/80">Cliente Pink Dog desde: 2024</div>
+          </div>
+
+          <div class="border border-ink bg-paper-dark p-3 space-y-1">
+            <div class="text-[10px] text-ink/60 uppercase font-bold">// SERVIÇO AGENDADO</div>
+            <div class="font-bold text-sm text-pink-pop" id="modalServiceName">-</div>
+            <div class="text-ink/80">Profissional: Dra. Maya &amp; Equipe Banho</div>
+            <div class="text-ink/80">Sala: Box 02 (Banheira de Alumínio)</div>
+          </div>
+
+        </div>
+
+        <!-- Anamnese / Notas do Whiteboard -->
+        <div>
+          <label class="block font-mono text-xs font-bold uppercase mb-1">// OBSERVAÇÕES CLÍNICAS &amp; CONDUTA:</label>
+          <div id="modalNotes" class="border-2 border-ink p-3 bg-white font-mono text-xs leading-relaxed text-ink/90">
+            -
+          </div>
+        </div>
+
+        <!-- Checklist de atendimento rápido -->
+        <div class="border border-ink bg-paper-dark/30 p-3 font-mono text-xs space-y-2">
+          <div class="font-bold text-[11px] text-pink-pop">// CHECKLIST DO ATENDIMENTO:</div>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked class="accent-pink-pop w-4 h-4">
+            <span>Recepção sem estresse e verificação de temperatura da água (28°C)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked class="accent-pink-pop w-4 h-4">
+            <span>Uso de shampoo hipoalergênico e toalha esterilizada selada</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="accent-pink-pop w-4 h-4">
+            <span>Ausculta pulmonar / Aferição de frequência cardíaca</span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="border-t-2 border-ink p-4 bg-paper-dark flex flex-wrap justify-between items-center gap-3">
+        <button onclick="closeModal()" class="border border-ink bg-paper px-4 py-2 font-mono text-xs font-bold hover:bg-ink hover:text-white transition">
+          FECHAR FICHA
+        </button>
+
+        <div class="flex gap-2">
+          <button onclick="alertAction('WhatsApp aberto com mensagem de atualização!')" class="border border-ink bg-emerald-600 text-white px-3 py-2 font-mono text-xs font-bold hover:bg-emerald-700 transition">
+            <i class="fa-brands fa-whatsapp"></i> AVISAR TUTOR
+          </button>
+          <button onclick="alertAction('Status do atendimento atualizado para CONCLUÍDO!')" class="border border-ink bg-pink-pop text-white px-4 py-2 font-mono text-xs font-bold hover:bg-ink transition shadow-brutal-sm">
+            MARCAR COMO CONCLUÍDO
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL PARA NOVO AGENDAMENTO RÁPIDO -->
+  <div id="newAppModal" class="fixed inset-0 bg-ink/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="border-4 border-ink bg-paper max-w-lg w-full shadow-brutal-lg relative">
+      <div class="bg-ink text-paper px-4 py-2 flex items-center justify-between">
+        <span class="font-mono text-xs font-bold">// NOVO POST-IT DE AGENDAMENTO</span>
+        <button onclick="closeNewModal()" class="text-white hover:text-pink-pop"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form onsubmit="handleNewAppointment(event)" class="p-6 space-y-4 font-mono text-xs">
+        <div>
+          <label class="block font-bold mb-1">NOME DO PET:</label>
+          <input id="newPetName" required type="text" placeholder="Ex: Bob" class="w-full border-2 border-ink p-2 bg-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold mb-1">RAÇA / ESPÉCIE:</label>
+            <input id="newPetBreed" required type="text" placeholder="Ex: Poodle" class="w-full border-2 border-ink p-2 bg-white">
+          </div>
+          <div>
+            <label class="block font-bold mb-1">TUTOR RESPONSÁVEL:</label>
+            <input id="newTutor" required type="text" placeholder="Ex: Ana Clara" class="w-full border-2 border-ink p-2 bg-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold mb-1">DIA DA SEMANA:</label>
+            <select id="newDay" class="w-full border-2 border-ink p-2 bg-white">
+              <option value="QUA">Quarta (Hoje)</option>
+              <option value="QUI">Quinta</option>
+              <option value="SEX">Sexta</option>
+              <option value="SAB">Sábado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold mb-1">HORÁRIO:</label>
+            <input id="newTime" required type="time" value="15:00" class="w-full border-2 border-ink p-2 bg-white">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold mb-1">TIPO DE SERVIÇO:</label>
+          <select id="newService" class="w-full border-2 border-ink p-2 bg-white">
+            <option value="Banho & Tosa Relax">Banho &amp; Tosa Relax</option>
+            <option value="Consulta Clínica Geral">Consulta Clínica Geral</option>
+            <option value="Vacinação Importada">Vacinação Importada</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full bg-pink-pop hover:bg-ink text-white font-title text-2xl py-2 border-2 border-ink shadow-brutal transition uppercase tracking-wider">
+          COLAR NO QUADRO &rarr;
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST FEEDBACK NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 border-2 border-ink bg-paper px-4 py-3 shadow-brutal-lg font-mono text-xs z-50 hidden flex items-center gap-3">
+    <span class="w-3 h-3 bg-pink-pop"></span>
+    <span id="toastMsg" class="font-bold">Notificação</span>
+  </div>
+
+  <!-- JAVASCRIPT INTERACTIONS -->
+  <script>
+    // Open Modal Details
+    function openPatientModal(pet, breed, tutor, service, time, status, notes) {
+      document.getElementById('modalPetName').textContent = pet;
+      document.getElementById('modalPetBreed').textContent = breed;
+      document.getElementById('modalTutorName').textContent = tutor;
+      document.getElementById('modalServiceName').textContent = service;
+      document.getElementById('modalTimeSlot').textContent = `Agendado para: ${time}`;
+      document.getElementById('modalStatusBadge').textContent = status.toUpperCase();
+      document.getElementById('modalNotes').textContent = notes || 'Paciente sem restrições relatadas.';
+      
+      document.getElementById('patientModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('patientModal').classList.add('hidden');
+    }
+
+    function openNewModal() {
+      document.getElementById('newAppModal').classList.remove('hidden');
+    }
+
+    function closeNewModal() {
+      document.getElementById('newAppModal').classList.add('hidden');
+    }
+
+    // Filter appointments on Whiteboard
+    function filterType(type) {
+      // Toggle button active classes
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-ink', 'text-white', 'font-bold');
+        btn.classList.add('bg-paper-dark');
+      });
+      event.target.classList.add('bg-ink', 'text-white', 'font-bold');
+      event.target.classList.remove('bg-paper-dark');
+
+      const cards = document.querySelectorAll('.appointment-card');
+      cards.forEach(card => {
+        if (type === 'all' || card.getAttribute('data-service') === type) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Search inside the Table
+    function searchTable() {
+      const input = document.getElementById('patientSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#patientsTable tbody tr');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(input) ? '' : 'none';
+      });
+    }
+
+    // New Appointment Submission
+    function handleNewAppointment(e) {
+      e.preventDefault();
+      const pet = document.getElementById('newPetName').value;
+      const breed = document.getElementById('newPetBreed').value;
+      const tutor = document.getElementById('newTutor').value;
+      const service = document.getElementById('newService').value;
+
+      closeNewModal();
+      showToast(`Agendamento de "${pet}" adicionado ao Whiteboard com sucesso!`);
+      
+      // Auto-insert row into table for demonstration
+      const tbody = document.querySelector('#patientsTable tbody');
+      const newRow = document.createElement('tr');
+      newRow.className = "hover:bg-pink-soft/20 transition bg-amber-50";
+      newRow.innerHTML = `
+        <td class="py-3 px-3 font-bold border-r border-ink/30">#PK-NOVO</td>
+        <td class="py-3 px-3 font-bold text-ink border-r border-ink/30">🐾 ${pet}</td>
+        <td class="py-3 px-3 border-r border-ink/30">${breed}</td>
+        <td class="py-3 px-3 border-r border-ink/30">${tutor}</td>
+        <td class="py-3 px-3 border-r border-ink/30 text-pink-pop font-bold">${service}</td>
+        <td class="py-3 px-3 border-r border-ink/30"><span class="bg-amber-100 text-amber-900 px-2 py-0.5 border border-ink text-[10px] font-bold">RECÉM-CRIADO</span></td>
+        <td class="py-3 px-3 text-right">
+          <button onclick="openPatientModal('${pet}', '${breed}', '${tutor}', '${service}', 'Hoje', 'Confirmado', 'Agendado manualmente via Whiteboard.')" class="border border-ink bg-paper hover:bg-ink hover:text-white px-2 py-1 text-[11px] shadow-brutal-sm">
+            VER PRONTUÁRIO &rarr;
+          </button>
+        </td>
+      `;
+      tbody.prepend(newRow);
+    }
+
+    function alertAction(msg) {
+      showToast(msg);
+      closeModal();
+    }
+
+    function exportCSV() {
+      showToast('Exportando relatório CSV da semana 45...');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastMsg');
+      text.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Close on escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeNewModal();
+      }
+    });
+  </script>
+</body>
+</html>
