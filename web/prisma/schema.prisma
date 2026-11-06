@@ -1,5 +1,5 @@
 // Schema adaptado para SQLite (dev local sem Docker)
-// Para produção PostgreSQL: troque provider para "postgresql" e use Decimal @db.Decimal(10,2) + String[]
+// Para producao PostgreSQL: troque provider para "postgresql" e use Decimal @db.Decimal(10,2) + String[]
 
 generator client {
   provider = "prisma-client-js"
@@ -11,70 +11,50 @@ datasource db {
 }
 
 // ==========================================
-// 1. AUTENTICAÇÃO & USUÁRIOS
+// 1. AUTENTICACAO & USUARIOS
 // ==========================================
-
-enum UserRole {
-  ADMIN      // Administrador Geral
-  VET        // Veterinário
-  GROOMER    // Estética / SPA
-  RECEPTION  // Recepção
-}
 
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String   // hash bcrypt
   name      String
-  role      UserRole
+  role      String   // ADMIN, VET, GROOMER, RECEPTION
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   staff          StaffMember?
   appointmentsAsVet    Appointment[] @relation("VetAppointments")
   appointmentsAsGroomer Appointment[] @relation("GroomerAppointments")
-  medicalRecords StaffMedicalRecord[]
-  inventoryMoves InventoryMovement[]
+  medicalRecords MedicalRecord[]
 }
 
 // ==========================================
-// 2. FUNCIONÁRIOS / STAFF
+// 2. FUNCIONARIOS / STAFF
 // ==========================================
-
-enum Sector {
-  SPA
-  VET
-  GERAL
-}
 
 model StaffMember {
   id            String   @id @default(uuid())
   userId        String?  @unique
   name          String
-  sector        Sector
-  roleTitle     String   // Cargo específico ex: "Groomer Sênior"
-  crmv          String?  // CRMV-SP xxx (somente veterinários)
-  status        StaffStatus @default(ACTIVE)
+  sector        String   // SPA, VET, GERAL
+  roleTitle     String   // Cargo especifico ex: "Groomer Senior"
+  crmv          String?  // CRMV-SP xxx (somente veterinarios)
+  status        String   @default("ACTIVE") // ACTIVE, OFF_DUTY, VACATION, INACTIVE
 
-  // Permissões operacionais (da referência user edit)
-  permAdvanceStages Boolean @default(false)  // Avançar etapas no painel staff
-  permEditRecords   Boolean @default(false)  // Editar prontuários
-  permFinancial     Boolean @default(false)  // Relatórios financeiros
+  // Permissoes operacionais
+  permAdvanceStages Boolean @default(false)
+  permEditRecords   Boolean @default(false)
+  permFinancial     Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   user           User?    @relation(fields: [userId], references: [id])
-}
-
-enum StaffStatus {
-  ACTIVE
-  OFF_DUTY
-  VACATION
-  INACTIVE
+  inventoryMoves InventoryMovement[]
 }
 
 // ==========================================
@@ -91,7 +71,7 @@ model Client {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   pets    Pet[]
 }
 
@@ -99,25 +79,19 @@ model Client {
 // 4. PETS (PACIENTES)
 // ==========================================
 
-enum PetSpecies {
-  DOG
-  CAT
-  OTHER
-}
-
 model Pet {
   id          String   @id @default(uuid())
   name        String
-  species     PetSpecies
+  species     String   // DOG, CAT, OTHER
   breed       String
   weight      Float?   // kg
   birthDate   DateTime?
-  alert       String?  // Alerta médico/comportamental (ex: "não gosta de secador")
-  notes       String?  // Observações gerais
+  alert       String?  // Alerta medico/comportamental
+  notes       String?  // Observacoes gerais
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   clientId    String
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
@@ -126,31 +100,21 @@ model Pet {
 }
 
 // ==========================================
-// 5. SERVIÇOS (CATÁLOGO)
+// 5. SERVICOS (CATALOGO)
 // ==========================================
-
-enum ServiceCategory {
-  BATH
-  GROOMING
-  VET_CONSULT
-  VACCINE
-  SURGERY
-  CHECKUP
-  OTHER
-}
 
 model Service {
   id          String   @id @default(uuid())
   name        String
-  category    ServiceCategory
+  category    String   // BATH, GROOMING, VET_CONSULT, VACCINE, SURGERY, CHECKUP, OTHER
   description String?
   price       Float
-  durationMin Int      // Duração estimada em minutos
+  durationMin Int      // Duracao estimada em minutos
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   appointments Appointment[]
 }
 
@@ -158,74 +122,59 @@ model Service {
 // 6. AGENDAMENTOS
 // ==========================================
 
-enum AppointmentStatus {
-  SCHEDULED    // Agendado
-  WAITING      // Na recepção / espera
-  IN_PROGRESS  // Em execução (banho, consulta)
-  FINISHING    // Acabamento / secagem
-  READY        // Pronto para retirada
-  COMPLETED    // Finalizado / entregue
-  CANCELLED    // Cancelado
-  NO_SHOW      // Não compareceu
-}
-
 model Appointment {
   id          String   @id @default(uuid())
   date        DateTime // Data do agendamento
-  time        String   // Horário (HH:MM)
+  time        String   // Horario (HH:MM)
 
-  status      AppointmentStatus @default(SCHEDULED)
-  currentStep Int      @default(0) // Índice da etapa atual (para pipeline staff)
+  status      String   @default("SCHEDULED")
+  currentStep Int      @default(0)
 
-  // Checklist operacional (JSON flexível)
-  checklist   String?    // [{ label: "Temperatura água", checked: true }, ...]
+  checklist   String?
+  notes       String?
+  tutorNotes  String?
 
-  // Notas
-  notes       String?  // Observações da equipe
-  tutorNotes  String?  // Observações do tutor no momento do agendamento
-
-  // Timestamps operacionais
   checkedInAt   DateTime?
   startedAt     DateTime?
   finishedAt    DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   petId     String
   pet       Pet      @relation(fields: [petId], references: [id])
 
   serviceId String
   service   Service  @relation(fields: [serviceId], references: [id])
 
-  vetId     String?  // Veterinário responsável (se aplicável)
+  vetId     String?
   vet       User?    @relation("VetAppointments", fields: [vetId], references: [id])
 
-  groomerId String?  // Profissional de estética (se aplicável)
+  groomerId String?
   groomer   User?    @relation("GroomerAppointments", fields: [groomerId], references: [id])
 
   // Financeiro
-  priceCharged Float? // Valor cobrado (pode diferir do catálogo)
+  priceCharged Float?
   isPaid       Boolean  @default(false)
   paymentMethod String? // PIX, CREDIT_CARD, DEBIT_CARD, CASH
 }
 
 // ==========================================
-// 7. PRONTUÁRIO CLÍNICO
+// 7. PRONTUARIO CLINICO
 // ==========================================
 
 model MedicalRecord {
   id          String   @id @default(uuid())
   date        DateTime @default(now())
-  title       String   // Ex: "Consulta Dermatológica"
-  description String   // Anamnese / descrição
+  title       String
+  description String
   diagnosis   String?
   prescription String?
-  attachments String // URLs de fotos, raio-x, etc.
+  attachments String
 
   createdAt   DateTime @default(now())
 
-  // Relações
+  // Relacoes
   petId   String
   pet     Pet    @relation(fields: [petId], references: [id], onDelete: Cascade)
 
@@ -237,23 +186,14 @@ model MedicalRecord {
 // 8. PRODUTOS & ESTOQUE
 // ==========================================
 
-enum ProductCategory {
-  VACCINE
-  MEDICATION
-  SHAMPOO
-  FOOD
-  SUPPLY     // Material de consumo (seringas, luvas)
-  OTHER
-}
-
 model Product {
   id          String   @id @default(uuid())
   name        String
-  category    ProductCategory
+  category    String   // VACCINE, MEDICATION, SHAMPOO, FOOD, SUPPLY, OTHER
   sku         String   @unique
   description String?
-  unit        String   // unidade: ml, comprimido, dose, kg
-  minStock    Int      @default(0) // estoque mínimo
+  unit        String
+  minStock    Int      @default(0)
   currentStock Int     @default(0)
   costPrice   Float?
   salePrice   Float?
@@ -261,40 +201,33 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relações
+  // Relacoes
   movements InventoryMovement[]
-}
-
-enum MovementType {
-  IN      // Entrada / compra
-  OUT     // Saída / consumo
-  ADJUST  // Ajuste de inventário
-  RETURN  // Devolução
 }
 
 model InventoryMovement {
   id          String   @id @default(uuid())
-  type        MovementType
+  type        String   // IN, OUT, ADJUST, RETURN
   quantity    Int
-  reason      String   // "Compra fornecedor X", "Vacinação pet Y", "Ajuste contagem"
+  reason      String
   createdAt   DateTime @default(now())
 
-  // Relações
+  // Relacoes
   productId String
   product   Product  @relation(fields: [productId], references: [id])
 
   staffId   String
-  staff     User     @relation(fields: [staffId], references: [id])
+  staff     StaffMember @relation(fields: [staffId], references: [id])
 }
 
 // ==========================================
-// 9. NOTIFICAÇÕES / LOG
+// 9. NOTIFICACOES / LOG
 // ==========================================
 
 model NotificationLog {
   id        String   @id @default(uuid())
   channel   String   // WHATSAPP, SMS, EMAIL
-  recipient String   // número/destinatário
+  recipient String
   message   String
   sentAt    DateTime @default(now())
   status    String   // SENT, FAILED, PENDING

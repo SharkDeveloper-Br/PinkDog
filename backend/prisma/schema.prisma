@@ -35,7 +35,7 @@ model User {
   staff          StaffMember?
   appointmentsAsVet    Appointment[] @relation("VetAppointments")
   appointmentsAsGroomer Appointment[] @relation("GroomerAppointments")
-  medicalRecords StaffMedicalRecord[]
+  medicalRecords MedicalRecord[]
   inventoryMoves InventoryMovement[]
 }
 
@@ -284,7 +284,7 @@ model InventoryMovement {
   product   Product  @relation(fields: [productId], references: [id])
 
   staffId   String
-  staff     User     @relation(fields: [staffId], references: [id])
+  staff     StaffMember @relation(fields: [staffId], references: [id])
 }
 
 // ==========================================

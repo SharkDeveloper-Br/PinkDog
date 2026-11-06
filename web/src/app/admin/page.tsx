@@ -1,13 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
+import type { Appointment, DashboardStats } from "@/lib/types";
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<any>(null);
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/dashboard/stats").then(r => r.json()).then(setStats);
-    fetch("/api/appointments").then(r => r.json()).then(setAppointments);
+    fetch("/api/dashboard/stats")
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(setStats)
+      .catch(() => setError("Erro ao carregar estatisticas"));
+    fetch("/api/appointments")
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(setAppointments)
+      .catch(() => setError("Erro ao carregar agendamentos"));
   }, []);
 
   return (
@@ -16,6 +24,12 @@ export default function AdminPage() {
         <div className="font-mono text-xs text-[#FF5882] font-bold uppercase tracking-widest">// SYS_02 // ADMIN & DISPATCH CONSOLE</div>
         <h1 className="font-title text-5xl text-[#161616]">DASHBOARD PINK DOG</h1>
       </header>
+
+      {error && (
+        <div className="border-2 border-red-600 bg-red-50 p-3 font-mono text-xs text-red-700 font-bold">
+          {error}
+        </div>
+      )}
 
       {/* Stats Cards */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -47,27 +61,27 @@ export default function AdminPage() {
               <tr>
                 <th className="py-2 px-3">Hora</th>
                 <th className="py-2 px-3">Pet</th>
-                <th className="py-2 px-3">Serviço</th>
+                <th className="py-2 px-3">Servico</th>
                 <th className="py-2 px-3">Status</th>
-                <th className="py-2 px-3">Ações</th>
+                <th className="py-2 px-3">Acoes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#161616]/30">
-              {appointments.map((a: any) => (
+              {appointments.map((a) => (
                 <tr key={a.id} className="hover:bg-[#FFAEC0]/20">
                   <td className="py-3 px-3 font-bold">{a.time}</td>
                   <td className="py-3 px-3">{a.pet?.name} ({a.pet?.breed})</td>
                   <td className="py-3 px-3 text-[#FF5882] font-bold">{a.service?.name}</td>
                   <td className="py-3 px-3">
                     <span className={`px-2 py-0.5 border border-[#161616] text-[10px] font-bold ${
-                      a.status === 'COMPLETED' ? 'bg-emerald-200' :
-                      a.status === 'IN_PROGRESS' ? 'bg-amber-200' :
-                      a.status === 'READY' ? 'bg-emerald-600 text-white' :
-                      'bg-white'
+                      a.status === "COMPLETED" ? "bg-emerald-200" :
+                      a.status === "IN_PROGRESS" ? "bg-amber-200" :
+                      a.status === "READY" ? "bg-emerald-600 text-white" :
+                      "bg-white"
                     }`}>{a.status}</span>
                   </td>
                   <td className="py-3 px-3">
-                    <button className="border border-[#161616] bg-white px-2 py-1 text-[10px] hover:bg-[#161616] hover:text-white transition">VER &rarr;</button>
+                    <button type="button" className="border border-[#161616] bg-white px-2 py-1 text-[10px] hover:bg-[#161616] hover:text-white transition">VER &rarr;</button>
                   </td>
                 </tr>
               ))}
