@@ -73,3 +73,22 @@ export const serviceCreateSchema = z.object({
   price: z.number().positive(),
   durationMin: z.number().int().positive(),
 })
+
+export const clientRegisterSchema = z.object({
+  name: z.string().min(1, 'Nome obrigatorio').max(100),
+  phone: z.string().min(8, 'Telefone invalido').max(20),
+  email: z.string().email().optional().nullable(),
+  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/).optional().nullable(),
+  address: z.string().max(300).optional().nullable(),
+  password: z.string().min(6, 'Senha deve ter no minimo 6 caracteres').max(100),
+  pet: z.object({
+    name: z.string().min(1).max(50),
+    species: z.enum(['DOG', 'CAT', 'OTHER']),
+    breed: z.string().min(1).max(50),
+    weight: z.number().positive().optional().nullable(),
+    birthDate: z.string().optional().nullable(),
+    alert: z.string().max(200).optional().nullable(),
+    notes: z.string().max(500).optional().nullable(),
+    preferredSector: z.enum(['SPA', 'VET', 'GERAL']).optional().nullable(),
+  }),
+})

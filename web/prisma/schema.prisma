@@ -64,10 +64,11 @@ model StaffMember {
 model Client {
   id        String   @id @default(uuid())
   name      String
-  phone     String
+  phone     String   @unique
   email     String?
   cpf       String?  @unique
   address   String?
+  password  String?  // hash bcrypt — populado no cadastro online
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -88,6 +89,7 @@ model Pet {
   birthDate   DateTime?
   alert       String?  // Alerta medico/comportamental
   notes       String?  // Observacoes gerais
+  preferredSector String? @default("SPA") // Ala de atendimento inicial
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

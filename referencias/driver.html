@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink Dog — Terminal do Motorista & Rotas Pet Táxi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@800;900&family=JetBrains+Mono:wght@400;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-paper: #F6F3EB;
+      --ink: #18181B;
+      --pink-core: #F472B6;
+      --pink-dark: #BE185D;
+      --yellow-van: #FACC15;
+      --cyan-gps: #0284C7;
+      --green-ok: #22C55E;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      background-image: radial-gradient(rgba(24, 24, 27, 0.08) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-hand { font-family: 'Caveat', cursive; }
+
+    .brutal-border {
+      border: 3px solid var(--ink);
+    }
+
+    .brutal-border-sm {
+      border: 2px solid var(--ink);
+    }
+
+    .brutal-shadow {
+      box-shadow: 5px 5px 0px #18181B;
+    }
+
+    .brutal-shadow-sm {
+      box-shadow: 3px 3px 0px #18181B;
+    }
+
+    .brutal-shadow-yellow {
+      box-shadow: 5px 5px 0px #CA8A04;
+    }
+
+    /* Estilos de Botão com feedback tátil de celular */
+    .touch-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #18181B;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-3 sm:p-6 pb-24 max-w-5xl mx-auto">
+
+  <!-- CABEÇALHO DO MOTORISTA & TELEMETRIA DA VAN -->
+  <header class="w-full mb-6 bg-white brutal-border brutal-shadow p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 bg-yellow-400 brutal-border flex items-center justify-center font-syne text-2xl font-black text-black">
+        🚐
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-mono font-bold bg-black text-yellow-300 px-2 py-0.5">ROTA_VAN // 01</span>
+          <span class="text-xs font-mono font-bold text-zinc-500">PILOTO: MARCOS SILVA</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-syne font-black tracking-tight">TERMINAL DO MOTORISTA</h1>
+      </div>
+    </div>
+
+    <!-- TELEMETRIA RÁPIDA DE BORDO -->
+    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+      <div class="px-2.5 py-1 bg-zinc-100 brutal-border-sm text-[11px] font-mono">
+        <span class="text-zinc-400">AR CABINE:</span> <strong class="text-sky-700">21.5°C</strong>
+      </div>
+      <div class="px-2.5 py-1 bg-zinc-100 brutal-border-sm text-[11px] font-mono">
+        <span class="text-zinc-400">CAIXAS LIVRES:</span> <strong>3 / 6</strong>
+      </div>
+      <div class="px-2.5 py-1 bg-emerald-100 brutal-border-sm text-[11px] font-mono text-emerald-800 font-bold flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> GPS ATIVO
+      </div>
+    </div>
+  </header>
+
+  <!-- SELETOR DE TURNO / ABA (MANHÃ: COLETAS | TARDE: ENTREGAS) -->
+  <div class="grid grid-cols-2 gap-3 mb-6">
+    <button 
+      onclick="setShift('MANHA')" 
+      id="tab-manha" 
+      class="p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-yellow-300 text-black transition-all"
+    >
+      <span class="text-base sm:text-lg">🌅</span>
+      <span>TURNO MANHÃ (COLETAS)</span>
+      <span id="badge-count-manha" class="px-2 py-0.5 bg-black text-white text-[10px] rounded-full">3 restantes</span>
+    </button>
+
+    <button 
+      onclick="setShift('TARDE')" 
+      id="tab-tarde" 
+      class="p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-white text-zinc-600 hover:bg-zinc-100 transition-all"
+    >
+      <span class="text-base sm:text-lg">🌇</span>
+      <span>TURNO TARDE (ENTREGAS)</span>
+      <span id="badge-count-tarde" class="px-2 py-0.5 bg-zinc-300 text-black text-[10px] rounded-full">2 agendadas</span>
+    </button>
+  </div>
+
+  <!-- BARRA DE PROGRESSO DO TURNO -->
+  <div class="bg-white brutal-border brutal-shadow-sm p-4 mb-6">
+    <div class="flex justify-between items-center text-xs font-mono mb-2">
+      <span class="font-bold uppercase text-zinc-700" id="route-progress-label">PROGRESSO DA ROTA DA MANHÃ</span>
+      <span class="font-bold text-black" id="route-progress-percent">0% CONCLUÍDO</span>
+    </div>
+    <div class="w-full bg-zinc-200 h-3 brutal-border-sm overflow-hidden">
+      <div id="route-progress-bar" class="bg-yellow-400 h-full w-0 transition-all duration-500"></div>
+    </div>
+  </div>
+
+  <!-- LISTA DINÂMICA DE CARDS DE ROTA -->
+  <main id="routes-container" class="space-y-6">
+    <!-- Gerado dinamicamente via JavaScript -->
+  </main>
+
+  <!-- MODAL DE CONFIRMAÇÃO DE DISPARO DE MENSAGEM WHATSAPP -->
+  <div id="modal-whatsapp" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white brutal-border brutal-shadow w-full max-w-md p-6 relative">
+      <button onclick="closeModalWhatsapp()" class="absolute top-4 right-4 w-8 h-8 bg-zinc-200 brutal-border font-bold flex items-center justify-center hover:bg-black hover:text-white">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-2 text-green-700 font-mono text-xs font-bold mb-2">
+        <span class="text-base">💬</span> NOTIFICAÇÃO AO TUTOR
+      </div>
+      <h3 class="text-xl font-syne font-black mb-1" id="modal-wa-title">Aviso de Chegada</h3>
+      <p class="text-xs font-mono text-zinc-500 mb-4" id="modal-wa-target">Para: Igor Torres • (11) 98841-3320</p>
+
+      <div class="p-3 bg-zinc-50 brutal-border-sm font-mono text-xs mb-4 text-zinc-800 leading-relaxed" id="modal-wa-preview">
+        <!-- Texto pré-formatado da mensagem -->
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="closeModalWhatsapp()" class="flex-1 py-3 bg-zinc-200 brutal-border font-mono font-bold text-xs">
+          CANCELAR
+        </button>
+        <a id="modal-wa-link" href="#" target="_blank" onclick="confirmWhatsappSent()" class="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white brutal-border font-mono font-bold text-xs flex items-center justify-center gap-2 text-center">
+          <span>ENVIAR NO ZAP ↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // BASE DE DADOS DAS ROTAS DO DIA (MANHÃ E TARDE)
+    let ridesData = [
+      // === TURNO MANHÃ (COLETA ➔ UNIDADE PINK DOG) ===
+      {
+        id: "R-01",
+        shift: "MANHA",
+        stopNumber: 1,
+        time: "08:15",
+        petName: "Shaggy",
+        petBreed: "Golden Retriever",
+        petSize: "Grande (29kg)",
+        crate: "Caixa G #01",
+        notes: "Cão muito dócil, mas animado. Coleira peitoral no portão lateral.",
+        tutorName: "Igor Torres",
+        tutorPhone: "(11) 98841-3320",
+        address: "Rua Augusta, 1420",
+        neighborhood: "Consolação, São Paulo - SP",
+        cep: "01304-001",
+        complement: "Apto 82 (Interfonar)",
+        status: "PENDING", // PENDING -> ON_WAY -> ON_BOARD -> DELIVERED
+        coordsQuery: "Rua Augusta 1420 Consolação São Paulo"
+      },
+      {
+        id: "R-02",
+        shift: "MANHA",
+        stopNumber: 2,
+        time: "08:50",
+        petName: "Paçoca",
+        petBreed: "Bulldog Francês",
+        petSize: "Médio (12kg)",
+        crate: "Caixa M #03",
+        notes: "Braquicefálico: manter ar-condicionado direto. Não estressar no embarque.",
+        tutorName: "Fernanda Lima",
+        tutorPhone: "(11) 97123-4567",
+        address: "Alameda Santos, 980",
+        neighborhood: "Jardins, São Paulo - SP",
+        cep: "01418-100",
+        complement: "Casa com portão preto",
+        status: "PENDING",
+        coordsQuery: "Alameda Santos 980 Jardins São Paulo"
+      },
+      {
+        id: "R-03",
+        shift: "MANHA",
+        stopNumber: 3,
+        time: "09:30",
+        petName: "Luna",
+        petBreed: "Spitz Alemão",
+        petSize: "Pequeno (3.5kg)",
+        crate: "Caixa P #05",
+        notes: "Assustadiça com barulhos de buzina. Tutor entrega no colo.",
+        tutorName: "Carlos Eduardo",
+        tutorPhone: "(11) 99876-1234",
+        address: "Rua Bela Cintra, 650",
+        neighborhood: "Consolação, São Paulo - SP",
+        cep: "01415-000",
+        complement: "Portaria 24h",
+        status: "PENDING",
+        coordsQuery: "Rua Bela Cintra 650 Consolação São Paulo"
+      },
+
+      // === TURNO TARDE (UNIDADE PINK DOG ➔ DEVOLUÇÃO RESIDENCIAL) ===
+      {
+        id: "R-04",
+        shift: "TARDE",
+        stopNumber: 1,
+        time: "15:00",
+        petName: "Shaggy",
+        petBreed: "Golden Retriever",
+        petSize: "Grande (29kg)",
+        crate: "Caixa G #01",
+        notes: "Banho & Tosa concluídos. Entregar bandana e sachê brinde.",
+        tutorName: "Igor Torres",
+        tutorPhone: "(11) 98841-3320",
+        address: "Rua Augusta, 1420",
+        neighborhood: "Consolação, São Paulo - SP",
+        cep: "01304-001",
+        complement: "Apto 82",
+        status: "PENDING",
+        coordsQuery: "Rua Augusta 1420 Consolação São Paulo"
+      },
+      {
+        id: "R-05",
+        shift: "TARDE",
+        stopNumber: 2,
+        time: "16:00",
+        petName: "Pipoca",
+        petBreed: "Shih Tzu",
+        petSize: "Pequeno (6kg)",
+        crate: "Caixa P #02",
+        notes: "Laço rosa aplicado. Entregar comprovante da vacina junto.",
+        tutorName: "Beatriz Mendes",
+        tutorPhone: "(11) 98321-7788",
+        address: "Rua Oscar Freire, 320",
+        neighborhood: "Cerqueira César, São Paulo - SP",
+        cep: "01426-000",
+        complement: "Casa de vila, campainha 3",
+        status: "PENDING",
+        coordsQuery: "Rua Oscar Freire 320 Cerqueira César São Paulo"
+      }
+    ];
+
+    let currentShift = 'MANHA';
+    let pendingWaAction = null;
+
+    function setShift(shift) {
+      currentShift = shift;
+      const tabManha = document.getElementById('tab-manha');
+      const tabTarde = document.getElementById('tab-tarde');
+
+      if (shift === 'MANHA') {
+        tabManha.className = "p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-yellow-300 text-black transition-all";
+        tabTarde.className = "p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-white text-zinc-600 hover:bg-zinc-100 transition-all";
+      } else {
+        tabTarde.className = "p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-yellow-300 text-black transition-all";
+        tabManha.className = "p-3.5 brutal-border brutal-shadow-sm font-mono font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2 bg-white text-zinc-600 hover:bg-zinc-100 transition-all";
+      }
+
+      renderRoutes();
+    }
+
+    function renderRoutes() {
+      const container = document.getElementById('routes-container');
+      container.innerHTML = '';
+
+      const currentList = ridesData.filter(r => r.shift === currentShift);
+      const totalInShift = currentList.length;
+      const finishedInShift = currentList.filter(r => r.status === 'DELIVERED').length;
+      const percent = totalInShift > 0 ? Math.round((finishedInShift / totalInShift) * 100) : 0;
+
+      // Atualiza progresso
+      document.getElementById('route-progress-label').innerText = `PROGRESSO DO TURNO [${currentShift === 'MANHA' ? 'COLETAS' : 'ENTREGAS'}]`;
+      document.getElementById('route-progress-percent').innerText = `${finishedInShift} DE ${totalInShift} CONCLUÍDAS (${percent}%)`;
+      document.getElementById('route-progress-bar').style.width = `${percent}%`;
+
+      // Atualiza Badges
+      const pendingManha = ridesData.filter(r => r.shift === 'MANHA' && r.status !== 'DELIVERED').length;
+      const pendingTarde = ridesData.filter(r => r.shift === 'TARDE' && r.status !== 'DELIVERED').length;
+      document.getElementById('badge-count-manha').innerText = `${pendingManha} restantes`;
+      document.getElementById('badge-count-tarde').innerText = `${pendingTarde} restantes`;
+
+      currentList.forEach((ride, index) => {
+        const isDone = ride.status === 'DELIVERED';
+        const isOnBoard = ride.status === 'ON_BOARD';
+        const isOnWay = ride.status === 'ON_WAY';
+
+        const card = document.createElement('div');
+        card.className = `bg-white brutal-border brutal-shadow p-5 relative transition-all ${isDone ? 'opacity-70 bg-zinc-100' : ''}`;
+
+        // Links diretos para apps de navegação
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.coordsQuery)}`;
+        const wazeUrl = `https://waze.com/ul?q=${encodeURIComponent(ride.coordsQuery)}&navigate=yes`;
+
+        card.innerHTML = `
+          <!-- CABEÇALHO DO CARD -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b-2 border-black pb-3 mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 ${isDone ? 'bg-zinc-400 text-white' : 'bg-black text-yellow-300'} brutal-border-sm flex items-center justify-center font-mono font-bold text-sm">
+                #0${ride.stopNumber}
+              </span>
+              <div>
+                <span class="text-[10px] font-mono font-bold uppercase text-zinc-400">HORÁRIO ESTIMADO</span>
+                <div class="text-base font-mono font-bold text-black flex items-center gap-2">
+                  <span>⏱ ${ride.time}</span>
+                  <span class="text-xs px-2 py-0.5 bg-yellow-200 brutal-border-sm text-yellow-950">${ride.crate}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STATUS BADGE -->
+            <div>
+              ${
+                isDone ? '<span class="px-3 py-1 bg-green-200 text-green-950 font-mono font-bold text-xs brutal-border-sm">✔ CONCLUÍDO / ENTREGUE</span>' :
+                isOnBoard ? '<span class="px-3 py-1 bg-purple-200 text-purple-950 font-mono font-bold text-xs brutal-border-sm animate-pulse">🐶 PET A BORDO DA VAN</span>' :
+                isOnWay ? '<span class="px-3 py-1 bg-sky-200 text-sky-950 font-mono font-bold text-xs brutal-border-sm">🚐 VAN A CAMINHO</span>' :
+                '<span class="px-3 py-1 bg-zinc-200 text-zinc-700 font-mono font-bold text-xs brutal-border-sm">AGUARDANDO SAÍDA</span>'
+              }
+            </div>
+          </div>
+
+          <!-- DADOS DO PET & TUTOR -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            
+            <!-- Bloco Pet -->
+            <div class="p-3 bg-pink-50 brutal-border-sm">
+              <span class="text-[10px] font-mono font-bold text-pink-700 uppercase">// PASSAGEIRO (PET)</span>
+              <div class="text-xl font-syne font-black text-pink-950 mt-0.5">${ride.petName}</div>
+              <div class="text-xs font-mono text-pink-800">${ride.petBreed} • ${ride.petSize}</div>
+              <div class="mt-2 text-[11px] font-mono text-zinc-600 bg-white p-2 border border-pink-200">
+                <strong>Alerta:</strong> ${ride.notes}
+              </div>
+            </div>
+
+            <!-- Bloco Tutor e Contato -->
+            <div class="p-3 bg-zinc-50 brutal-border-sm flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-mono font-bold text-zinc-400 uppercase">// TUTOR RESPONSÁVEL</span>
+                <div class="text-base font-bold text-zinc-900 mt-0.5">${ride.tutorName}</div>
+                <div class="text-xs font-mono text-zinc-600">${ride.tutorPhone}</div>
+              </div>
+              <div class="mt-3 flex gap-2">
+                <a 
+                  href="tel:${ride.tutorPhone.replace(/\D/g, '')}" 
+                  class="flex-1 py-1.5 bg-white brutal-border-sm text-center text-xs font-mono font-bold hover:bg-zinc-100 touch-btn"
+                >
+                  📞 LIGAR
+                </a>
+                <button 
+                  onclick="openDirectChat('${ride.id}')" 
+                  class="flex-1 py-1.5 bg-green-200 text-green-950 brutal-border-sm text-center text-xs font-mono font-bold hover:bg-green-300 touch-btn"
+                >
+                  💬 WHATSAPP
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- BLOCO DE ENDEREÇO & BOTÕES DE ROTA GPS -->
+          <div class="p-3.5 bg-yellow-50 brutal-border-sm mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div class="flex-1">
+                <span class="text-[10px] font-mono font-bold text-yellow-800 uppercase">// DESTINO / PARADA</span>
+                <div class="text-sm font-mono font-bold text-zinc-900 mt-0.5">${ride.address} — ${ride.complement}</div>
+                <div class="text-xs font-mono text-zinc-600">${ride.neighborhood} • CEP ${ride.cep}</div>
+              </div>
+
+              <!-- BOTÕES GPS WAZE & GOOGLE MAPS -->
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <a 
+                  href="${mapsUrl}" 
+                  target="_blank" 
+                  class="flex-1 sm:flex-none px-3.5 py-2.5 bg-white text-zinc-900 brutal-border-sm font-mono font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-zinc-100 touch-btn"
+                >
+                  <span>📍</span> GOOGLE MAPS
+                </a>
+                <a 
+                  href="${wazeUrl}" 
+                  target="_blank" 
+                  class="flex-1 sm:flex-none px-3.5 py-2.5 bg-sky-400 text-black brutal-border-sm font-mono font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-sky-500 touch-btn"
+                >
+                  <span>🚗</span> WAZE
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- BOTÕES DE PROGRESSÃO DE STATUS (STEPPER OPERACIONAL) -->
+          <div class="border-t-2 border-black pt-4">
+            <span class="block text-[10px] font-mono font-bold uppercase text-zinc-400 mb-2">
+              // ATUALIZAR STATUS DA VIAGEM (AVISA O TUTOR AUTOMATICAMENTE):
+            </span>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              
+              <!-- Botão 1: A Caminho -->
+              <button 
+                onclick="triggerStatusUpdate('${ride.id}', 'ON_WAY')"
+                class="py-2.5 px-3 font-mono font-bold text-xs brutal-border-sm touch-btn flex items-center justify-center gap-1.5 ${
+                  isOnWay ? 'bg-sky-500 text-white font-black ring-2 ring-black' : 'bg-white text-zinc-800 hover:bg-sky-100'
+                }"
+              >
+                <span>🚐</span> 1. A CAMINHO
+              </button>
+
+              <!-- Botão 2: Pet a Bordo -->
+              <button 
+                onclick="triggerStatusUpdate('${ride.id}', 'ON_BOARD')"
+                class="py-2.5 px-3 font-mono font-bold text-xs brutal-border-sm touch-btn flex items-center justify-center gap-1.5 ${
+                  isOnBoard ? 'bg-purple-600 text-white font-black ring-2 ring-black' : 'bg-white text-zinc-800 hover:bg-purple-100'
+                }"
+              >
+                <span>🐕</span> 2. PET A BORDO
+              </button>
+
+              <!-- Botão 3: Entregue na Unidade -->
+              <button 
+                onclick="triggerStatusUpdate('${ride.id}', 'DELIVERED')"
+                class="py-2.5 px-3 font-mono font-bold text-xs brutal-border-sm touch-btn flex items-center justify-center gap-1.5 ${
+                  isDone ? 'bg-emerald-600 text-white font-black' : 'bg-yellow-300 text-black hover:bg-emerald-400'
+                }"
+              >
+                <span>✔</span> 3. ${currentShift === 'MANHA' ? 'ENTREGUE NA UNIDADE' : 'DEVOLVIDO AO TUTOR'}
+              </button>
+
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // DISPARO DE ATUALIZAÇÃO COM POP-UP FORMATADO DE WHATSAPP
+    function triggerStatusUpdate(rideId, newStatus) {
+      const ride = ridesData.find(r => r.id === rideId);
+      if (!ride) return;
+
+      ride.status = newStatus;
+      renderRoutes();
+
+      const cleanPhone = ride.tutorPhone.replace(/\D/g, '');
+      let message = "";
+      let title = "";
+
+      if (newStatus === 'ON_WAY') {
+        title = "Aviso: Pet Táxi a Caminho!";
+        message = `Olá ${ride.tutorName}! 🚐 O Pet Táxi da *Pink Dog* já está a caminho da sua residência para buscar o(a) *${ride.petName}*. Previsão de chegada: 10 a 15 minutos! Por favor, já deixe a coleira/guia à mão.`;
+      } else if (newStatus === 'ON_BOARD') {
+        title = "Aviso: Pet a Bordo da Van";
+        message = `Tudo certo, ${ride.tutorName}! 🐾 O(a) *${ride.petName}* já está confortavelmente a bordo da nossa van climatizada na ${ride.crate}. Estamos a caminho da unidade Pink Dog com todo o carinho e segurança!`;
+      } else if (newStatus === 'DELIVERED') {
+        if (ride.shift === 'MANHA') {
+          title = "Aviso: Chegada no Pink Dog";
+          message = `Boas notícias, ${ride.tutorName}! 🎉 O(a) *${ride.petName}* acabou de desembarcar com segurança na nossa unidade. Nossa equipe já iniciou a triagem de recepção!`;
+        } else {
+          title = "Aviso: Devolução Concluída";
+          message = `Missão cumprida, ${ride.tutorName}! ❤️ O(a) *${ride.petName}* foi entregue em casa cheiroso(a) e feliz. Agradecemos pela confiança na Pink Dog!`;
+        }
+      }
+
+      // Abre Modal de WhatsApp
+      document.getElementById('modal-wa-title').innerText = title;
+      document.getElementById('modal-wa-target').innerText = `Tutor: ${ride.tutorName} • ${ride.tutorPhone}`;
+      document.getElementById('modal-wa-preview').innerText = `"${message}"`;
+      
+      const whatsappUrl = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(message)}`;
+      document.getElementById('modal-wa-link').href = whatsappUrl;
+
+      const modal = document.getElementById('modal-whatsapp');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function openDirectChat(rideId) {
+      const ride = ridesData.find(r => r.id === rideId);
+      if (!ride) return;
+      const cleanPhone = ride.tutorPhone.replace(/\D/g, '');
+      const msg = `Olá ${ride.tutorName}, aqui é o motorista da Pink Van a respeito do transporte do(a) ${ride.petName}.`;
+      window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function closeModalWhatsapp() {
+      const modal = document.getElementById('modal-whatsapp');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmWhatsappSent() {
+      setTimeout(() => {
+        closeModalWhatsapp();
+      }, 500);
+    }
+
+    // Inicialização
+    renderRoutes();
+  </script>
+</body>
+</html>

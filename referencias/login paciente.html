@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pink Dog — Ficha de Cadastro & Pet Táxi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Syne:wght@800;900&family=JetBrains+Mono:wght@400;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-paper: #F6F3EB;
+      --ink: #18181B;
+      --pink-core: #F472B6;
+      --pink-accent: #EC4899;
+      --yellow-tag: #FEF08A;
+      --cyan-vet: #38BDF8;
+    }
+
+    body {
+      background-color: var(--bg-paper);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      background-image: radial-gradient(rgba(24, 24, 27, 0.08) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-hand { font-family: 'Caveat', cursive; }
+
+    .brutal-border {
+      border: 3px solid var(--ink);
+    }
+
+    .brutal-border-sm {
+      border: 2px solid var(--ink);
+    }
+
+    .brutal-shadow {
+      box-shadow: 6px 6px 0px #18181B;
+    }
+
+    .brutal-shadow-sm {
+      box-shadow: 3px 3px 0px #18181B;
+    }
+
+    .brutal-shadow-pink {
+      box-shadow: 5px 5px 0px #EC4899;
+    }
+
+    /* Animação suave para expansão do bloco de endereço */
+    #address-section {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+  <!-- CABEÇALHO DA FICHA -->
+  <header class="w-full max-w-6xl mx-auto mb-8 bg-white brutal-border brutal-shadow p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 bg-pink-400 brutal-border flex items-center justify-center font-syne text-2xl font-black text-white">
+        PD
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono font-bold bg-black text-white px-2 py-0.5">// FORM_INDUCTION_V3</span>
+          <span class="text-xs font-mono text-zinc-500">NOVA ENTRADA NO SISTEMA</span>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-syne font-black tracking-tight">CADASTRO DE PET & TUTOR</h1>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="px-3 py-1.5 text-xs font-mono font-bold bg-zinc-100 brutal-border-sm hover:bg-zinc-200">
+        ← SITE
+      </a>
+      <a href="staff.html" class="px-3 py-1.5 text-xs font-mono font-bold bg-zinc-100 brutal-border-sm hover:bg-zinc-200">
+        PAINEL STAFF
+      </a>
+      <span class="px-3 py-1.5 text-xs font-mono font-bold bg-yellow-200 brutal-border-sm">
+        REGISTRO AUTOMÁTICO
+      </span>
+    </div>
+  </header>
+
+  <main class="w-full max-w-6xl mx-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-12">
+
+    <!-- COLUNA ESQUERDA: FORMULÁRIO BRUTALISTA (7 COLUNAS) -->
+    <div class="lg:col-span-7 bg-white brutal-border brutal-shadow p-6 md:p-8">
+      
+      <form id="petRegistrationForm" onsubmit="handleSubmit(event)" class="space-y-6">
+        
+        <!-- BLOCO 01: DADOS DO TUTOR -->
+        <div class="border-b-2 border-black pb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 bg-black text-white flex items-center justify-center font-mono font-bold text-xs">01</span>
+            <h2 class="font-syne font-black text-lg tracking-tight uppercase">DADOS DO TUTOR (RESPONSÁVEL)</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block font-mono font-bold text-xs uppercase mb-1">Nome Completo do Tutor *</label>
+              <input 
+                type="text" 
+                id="tutorName" 
+                required 
+                placeholder="Ex: Igor Torres" 
+                oninput="updatePassport()"
+                class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+              >
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Telefone / WhatsApp *</label>
+                <input 
+                  type="tel" 
+                  id="tutorPhone" 
+                  required 
+                  placeholder="(11) 98841-3320" 
+                  oninput="maskPhone(this); updatePassport()"
+                  class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+                >
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">E-mail (Opcional)</label>
+                <input 
+                  type="email" 
+                  id="tutorEmail" 
+                  placeholder="tutor@exemplo.com" 
+                  class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 02: DADOS DO PET -->
+        <div class="border-b-2 border-black pb-6">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 bg-pink-400 text-black brutal-border-sm flex items-center justify-center font-mono font-bold text-xs">02</span>
+            <h2 class="font-syne font-black text-lg tracking-tight uppercase">DADOS DO PACIENTE (PET)</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="md:col-span-2">
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Nome do Pet *</label>
+                <input 
+                  type="text" 
+                  id="petName" 
+                  required 
+                  placeholder="Ex: Shaggy" 
+                  oninput="updatePassport()"
+                  class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+                >
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Espécie</label>
+                <select id="petSpecies" onchange="updatePassport()" class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+                  <option value="Canino">Cachorro 🐕</option>
+                  <option value="Felino">Gato 🐈</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Raça</label>
+                <input 
+                  type="text" 
+                  id="petBreed" 
+                  placeholder="Ex: Golden Retriever" 
+                  oninput="updatePassport()"
+                  class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+                >
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Porte</label>
+                <select id="petSize" onchange="updatePassport()" class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+                  <option value="Grande">Grande (25kg+)</option>
+                  <option value="Médio" selected>Médio (10kg a 25kg)</option>
+                  <option value="Pequeno">Pequeno (até 10kg)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-xs uppercase mb-1">Idade Aprox.</label>
+                <input 
+                  type="text" 
+                  id="petAge" 
+                  placeholder="Ex: 3 anos" 
+                  oninput="updatePassport()"
+                  class="w-full p-3 bg-zinc-50 brutal-border-sm font-mono text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white"
+                >
+              </div>
+            </div>
+
+            <!-- Setor Desejado -->
+            <div>
+              <label class="block font-mono font-bold text-xs uppercase mb-2">Ala de Atendimento Inicial</label>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-2 p-3 bg-pink-50 brutal-border-sm cursor-pointer hover:bg-pink-100 transition-colors">
+                  <input type="radio" name="initialSector" value="SPA" checked onchange="updatePassport()" class="w-4 h-4 accent-pink-600">
+                  <span class="font-mono text-xs font-bold text-pink-900">🧼 SPA & Banho</span>
+                </label>
+                <label class="flex items-center gap-2 p-3 bg-sky-50 brutal-border-sm cursor-pointer hover:bg-sky-100 transition-colors">
+                  <input type="radio" name="initialSector" value="VET" onchange="updatePassport()" class="w-4 h-4 accent-sky-600">
+                  <span class="font-mono text-xs font-bold text-sky-950">🩺 Clínica Veterinária</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 03: PERGUNTA CONDICIONAL — PET TÁXI -->
+        <div class="pb-2">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 bg-yellow-300 text-black brutal-border-sm flex items-center justify-center font-mono font-bold text-xs">03</span>
+              <h2 class="font-syne font-black text-lg tracking-tight uppercase">TRANSPORTE & LOGÍSTICA</h2>
+            </div>
+            <span class="text-xs font-mono font-bold bg-black text-yellow-300 px-2 py-0.5">VAN CLIMATIZADA</span>
+          </div>
+
+          <div class="p-4 bg-yellow-50 brutal-border-sm mb-4">
+            <div class="font-bold text-sm text-zinc-900 mb-1">Deseja cadastrar o serviço de Pet Táxi?</div>
+            <p class="text-xs font-mono text-zinc-600 mb-4">
+              Buscamos e entregamos seu companheiro com caixas de transporte individuais higienizadas e monitoramento em tempo real.
+            </p>
+
+            <!-- OPÇÕES SIM / NÃO -->
+            <div class="grid grid-cols-2 gap-4">
+              <button 
+                type="button" 
+                id="btn-taxi-no" 
+                onclick="setPetTaxi(false)"
+                class="p-3 text-xs font-mono font-bold brutal-border-sm bg-black text-white transition-all text-center"
+              >
+                ✕ NÃO, VOU LEVAR PESSOALMENTE
+              </button>
+
+              <button 
+                type="button" 
+                id="btn-taxi-yes" 
+                onclick="setPetTaxi(true)"
+                class="p-3 text-xs font-mono font-bold brutal-border-sm bg-white text-zinc-700 hover:bg-yellow-200 transition-all text-center"
+              >
+                🚐 SIM! CADASTRAR PET TÁXI
+              </button>
+            </div>
+          </div>
+
+          <!-- BLOCO CONDICIONAL DE ENDEREÇO (REVELA APENAS SE FOR 'SIM') -->
+          <div id="address-section" class="hidden space-y-4 p-5 bg-yellow-100/70 brutal-border-sm mt-4">
+            <div class="flex items-center justify-between border-b border-black/20 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">📍</span>
+                <span class="font-mono font-bold text-xs uppercase text-zinc-800">Endereço de Coleta & Entrega</span>
+              </div>
+              <span class="text-[10px] font-mono text-zinc-600 font-bold bg-white px-2 py-0.5 brutal-border-sm">ROTA PINK VAN</span>
+            </div>
+
+            <!-- CEP E NÚMERO -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block font-mono font-bold text-[11px] uppercase mb-1">CEP</label>
+                <div class="flex gap-1">
+                  <input 
+                    type="text" 
+                    id="addressCep" 
+                    placeholder="00000-000" 
+                    maxlength="9"
+                    oninput="maskCep(this); updatePassport()"
+                    class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+                  >
+                  <button type="button" onclick="autoFillCep()" class="px-2 bg-black text-white text-xs font-mono font-bold">BUSCAR</button>
+                </div>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block font-mono font-bold text-[11px] uppercase mb-1">Rua / Avenida *</label>
+                <input 
+                  type="text" 
+                  id="addressStreet" 
+                  placeholder="Ex: Av. Paulista, Alameda dos Ipês..." 
+                  oninput="updatePassport()"
+                  class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+                >
+              </div>
+            </div>
+
+            <!-- NÚMERO, BAIRRO E COMPLEMENTO -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block font-mono font-bold text-[11px] uppercase mb-1">Número *</label>
+                <input 
+                  type="text" 
+                  id="addressNumber" 
+                  placeholder="123" 
+                  oninput="updatePassport()"
+                  class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+                >
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-[11px] uppercase mb-1">Bairro *</label>
+                <input 
+                  type="text" 
+                  id="addressNeighborhood" 
+                  placeholder="Centro" 
+                  oninput="updatePassport()"
+                  class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+                >
+              </div>
+              <div>
+                <label class="block font-mono font-bold text-[11px] uppercase mb-1">Apto / Bloco</label>
+                <input 
+                  type="text" 
+                  id="addressComplement" 
+                  placeholder="Apto 42" 
+                  oninput="updatePassport()"
+                  class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+                >
+              </div>
+            </div>
+
+            <!-- OBSERVAÇÕES PARA O MOTORISTA -->
+            <div>
+              <label class="block font-mono font-bold text-[11px] uppercase mb-1">Ponto de Referência / Instruções de Embarque</label>
+              <textarea 
+                id="addressNotes" 
+                rows="2" 
+                placeholder="Ex: Tocar o interfone 42, aguardar no portão lateral, cão dócil..." 
+                oninput="updatePassport()"
+                class="w-full p-2.5 bg-white brutal-border-sm font-mono text-xs focus:ring-2 focus:ring-yellow-400"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTÃO DE ENVIO -->
+        <div class="pt-4">
+          <button 
+            type="submit" 
+            class="w-full py-4 bg-pink-400 hover:bg-pink-500 text-black font-syne font-black text-lg brutal-border brutal-shadow hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center justify-center gap-3"
+          >
+            <span>CONCLUIR CADASTRO DO PET</span>
+            <span class="font-mono text-base">▶</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- COLUNA DIREITA: LIVE PREVIEW ESTILO "PASSAPORTE / TICKET PINK DOG" (5 COLUNAS) -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+      
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-mono font-bold uppercase text-zinc-500">// LIVE_TICKET_PREVIEW</span>
+        <span class="font-hand text-lg text-pink-600 rotate-[-2deg]">Pré-visualização do crachá</span>
+      </div>
+
+      <!-- CARTÃO EMBARQUE DO PET -->
+      <div class="bg-white brutal-border brutal-shadow-pink relative overflow-hidden p-6">
+        
+        <!-- CARIMBO DE WATERMARK -->
+        <div class="absolute -right-6 -bottom-6 text-8xl font-syne font-black opacity-5 pointer-events-none select-none">
+          PINK
+        </div>
+
+        <!-- CABEÇALHO DO TICKET -->
+        <div class="flex justify-between items-start border-b-2 border-black pb-4 mb-4">
+          <div>
+            <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500">PINK DOG HOSPITAL & SPA</div>
+            <h3 class="text-2xl font-syne font-black text-black" id="preview-pet-name">NOME DO PET</h3>
+            <p class="text-xs font-mono text-zinc-600" id="preview-pet-meta">Cachorro • Raça não informada</p>
+          </div>
+          <div class="text-right">
+            <span id="preview-sector-badge" class="px-2.5 py-1 text-xs font-mono font-bold brutal-border-sm bg-pink-200 text-pink-900 inline-block">
+              SPA & BANHO
+            </span>
+            <div class="text-[10px] font-mono text-zinc-400 mt-1" id="preview-reg-id">TAG #PD-994</div>
+          </div>
+        </div>
+
+        <!-- DADOS PRINCIPAIS DO CARTÃO -->
+        <div class="space-y-3 font-mono text-xs">
+          <div class="bg-zinc-50 p-2.5 brutal-border-sm">
+            <span class="text-[10px] text-zinc-400 uppercase font-bold block">// TUTOR RESPONSÁVEL</span>
+            <div class="font-bold text-zinc-900 text-sm" id="preview-tutor-name">Aguardando preenchimento...</div>
+            <div class="text-zinc-600" id="preview-tutor-phone">—</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-zinc-50 p-2 brutal-border-sm">
+              <span class="text-[10px] text-zinc-400 uppercase block font-bold">PORTE</span>
+              <span class="font-bold text-zinc-800" id="preview-pet-size">Médio</span>
+            </div>
+            <div class="bg-zinc-50 p-2 brutal-border-sm">
+              <span class="text-[10px] text-zinc-400 uppercase block font-bold">IDADE</span>
+              <span class="font-bold text-zinc-800" id="preview-pet-age">—</span>
+            </div>
+          </div>
+
+          <!-- SEÇÃO PET TÁXI NO TICKET -->
+          <div id="preview-taxi-card" class="p-3 bg-zinc-100 brutal-border-sm border-dashed">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] font-bold uppercase text-zinc-500">// SERVIÇO DE TRANSPORTE</span>
+              <span id="preview-taxi-status" class="px-1.5 py-0.5 text-[9px] font-bold bg-zinc-300 text-zinc-700 rounded">
+                DISPENSADO
+              </span>
+            </div>
+            <p id="preview-taxi-desc" class="text-[11px] text-zinc-500">
+              O tutor fará a entrega e retirada diretamente na unidade.
+            </p>
+          </div>
+        </div>
+
+        <!-- CÓDIGO DE BARRAS / FOOTER DO TICKET -->
+        <div class="mt-6 pt-4 border-t-2 border-black flex justify-between items-center">
+          <div class="font-mono text-[9px] text-zinc-500">
+            EMISSÃO DIGITAL // PINK DOG SYSTEM<br>
+            SISTEMA INTEGRADO DE CADASTRO
+          </div>
+          <div class="font-mono text-xl tracking-widest font-black select-none">
+            ||| | |||| | ||
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BOX DE BENEFÍCIOS DO PET TÁXI -->
+      <div class="p-4 bg-yellow-200/80 brutal-border brutal-shadow-sm font-mono text-xs">
+        <div class="font-bold flex items-center gap-1.5 mb-1 text-yellow-950">
+          <span>🚐</span>
+          <span>COMO FUNCIONA O PET TÁXI:</span>
+        </div>
+        <ul class="space-y-1 text-zinc-800 text-[11px]">
+          <li>• O motorista envia notificação no WhatsApp 15 minutos antes de chegar.</li>
+          <li>• Rotas organizadas por proximidade para evitar estresse ao animal.</li>
+          <li>• Sanitização entre viagens com laudo veterinário.</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- SCRIPT DE COMPORTAMENTO E ATUALIZAÇÃO REATIVA -->
+  <script>
+    let hasPetTaxi = false;
+
+    // CONTROLE DE TOGGLE DO PET TÁXI
+    function setPetTaxi(active) {
+      hasPetTaxi = active;
+      const section = document.getElementById('address-section');
+      const btnNo = document.getElementById('btn-taxi-no');
+      const btnYes = document.getElementById('btn-taxi-yes');
+
+      const streetInput = document.getElementById('addressStreet');
+      const numberInput = document.getElementById('addressNumber');
+      const neighborhoodInput = document.getElementById('addressNeighborhood');
+
+      if (active) {
+        section.classList.remove('hidden');
+        btnYes.className = "p-3 text-xs font-mono font-bold brutal-border-sm bg-yellow-300 text-black transition-all text-center";
+        btnNo.className = "p-3 text-xs font-mono font-bold brutal-border-sm bg-white text-zinc-600 hover:bg-zinc-100 transition-all text-center";
+        
+        streetInput.required = true;
+        numberInput.required = true;
+        neighborhoodInput.required = true;
+      } else {
+        section.classList.add('hidden');
+        btnNo.className = "p-3 text-xs font-mono font-bold brutal-border-sm bg-black text-white transition-all text-center";
+        btnYes.className = "p-3 text-xs font-mono font-bold brutal-border-sm bg-white text-zinc-700 hover:bg-yellow-200 transition-all text-center";
+        
+        streetInput.required = false;
+        numberInput.required = false;
+        neighborhoodInput.required = false;
+      }
+
+      updatePassport();
+    }
+
+    // ATUALIZAÇÃO DINÂMICA DO CRACHÁ / TICKET
+    function updatePassport() {
+      // Tutor
+      const tutor = document.getElementById('tutorName').value.trim();
+      const phone = document.getElementById('tutorPhone').value.trim();
+      document.getElementById('preview-tutor-name').innerText = tutor || 'Aguardando preenchimento...';
+      document.getElementById('preview-tutor-phone').innerText = phone || '—';
+
+      // Pet
+      const pet = document.getElementById('petName').value.trim();
+      const breed = document.getElementById('petBreed').value.trim();
+      const species = document.getElementById('petSpecies').value;
+      const size = document.getElementById('petSize').value;
+      const age = document.getElementById('petAge').value.trim();
+
+      document.getElementById('preview-pet-name').innerText = pet ? pet.toUpperCase() : 'NOME DO PET';
+      document.getElementById('preview-pet-meta').innerText = `${species} • ${breed || 'Raça mista / SRD'}`;
+      document.getElementById('preview-pet-size').innerText = size;
+      document.getElementById('preview-pet-age').innerText = age || '—';
+
+      // Setor
+      const sector = document.querySelector('input[name="initialSector"]:checked').value;
+      const badge = document.getElementById('preview-sector-badge');
+      if (sector === 'SPA') {
+        badge.innerText = 'SPA & BANHO';
+        badge.className = 'px-2.5 py-1 text-xs font-mono font-bold brutal-border-sm bg-pink-200 text-pink-900 inline-block';
+      } else {
+        badge.innerText = 'CLÍNICA VET';
+        badge.className = 'px-2.5 py-1 text-xs font-mono font-bold brutal-border-sm bg-sky-200 text-sky-950 inline-block';
+      }
+
+      // Transporte Pet Táxi
+      const taxiCard = document.getElementById('preview-taxi-card');
+      const taxiStatus = document.getElementById('preview-taxi-status');
+      const taxiDesc = document.getElementById('preview-taxi-desc');
+
+      if (hasPetTaxi) {
+        const street = document.getElementById('addressStreet').value.trim();
+        const number = document.getElementById('addressNumber').value.trim();
+        const neighborhood = document.getElementById('addressNeighborhood').value.trim();
+
+        taxiCard.className = "p-3 bg-yellow-100 brutal-border-sm";
+        taxiStatus.innerText = "🚐 ROTA CONFIRMADA";
+        taxiStatus.className = "px-1.5 py-0.5 text-[9px] font-bold bg-yellow-400 text-black brutal-border-sm";
+
+        if (street || number || neighborhood) {
+          taxiDesc.innerHTML = `<strong>Coleta agendada em:</strong> ${street || 'Rua'}, nº ${number || 'S/N'} — ${neighborhood || 'Bairro'}`;
+        } else {
+          taxiDesc.innerText = "Informe o endereço de coleta no formulário...";
+        }
+      } else {
+        taxiCard.className = "p-3 bg-zinc-100 brutal-border-sm border-dashed";
+        taxiStatus.innerText = "DISPENSADO";
+        taxiStatus.className = "px-1.5 py-0.5 text-[9px] font-bold bg-zinc-300 text-zinc-700";
+        taxiDesc.innerText = "O tutor fará a entrega e retirada diretamente na unidade.";
+      }
+    }
+
+    // MÁSCARAS
+    function maskPhone(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 6) {
+        input.value = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+      } else if (v.length > 2) {
+        input.value = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+      } else {
+        input.value = v;
+      }
+    }
+
+    function maskCep(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 8) v = v.slice(0, 8);
+      if (v.length > 5) {
+        input.value = `${v.slice(0, 5)}-${v.slice(5)}`;
+      } else {
+        input.value = v;
+      }
+    }
+
+    // SIMULAÇÃO DE AUTO-COMPLETE CEP
+    function autoFillCep() {
+      const cep = document.getElementById('addressCep').value.replace(/\D/g, "");
+      if (cep.length !== 8) {
+        alert("Digite um CEP válido com 8 dígitos.");
+        return;
+      }
+
+      // Preenchimento de demonstração
+      document.getElementById('addressStreet').value = "Av. das Palmeiras Caninas";
+      document.getElementById('addressNeighborhood').value = "Jardim Petrópolis";
+      updatePassport();
+    }
+
+    // ENVIO DO FORMULÁRIO
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      const pet = document.getElementById('petName').value;
+      const tutor = document.getElementById('tutorName').value;
+      const taxiMsg = hasPetTaxi ? "com serviço de Pet Táxi ativado!" : "com retirada presencial!";
+
+      alert(`✅ Sucesso! Paciente [${pet}] registrado para o tutor [${tutor}] ${taxiMsg}`);
+    }
+
+    // Gerador de ID aleatório inicial
+    document.getElementById('preview-reg-id').innerText = `TAG #PD-${Math.floor(100 + Math.random() * 900)}`;
+  </script>
+</body>
+</html>

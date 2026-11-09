@@ -13,37 +13,69 @@ export async function POST(req: NextRequest) {
     }
 
     const { email, password } = parsed.data
+
+    // 1. Tenta funcionario (User)
     const user = await prisma.user.findUnique({ where: { email } })
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    if (user) {
+      const valid = comparePassword(password, user.password)
+      if (!valid) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+      }
+      const token = await signToken({
+        sub: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      })
+      const res = NextResponse.json({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      })
+      res.cookies.set('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 8,
+        path: '/',
+      })
+      return res
     }
 
-    const valid = comparePassword(password, user.password)
-    if (!valid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+    // 2. Tenta cliente (Client) por email ou telefone
+    const client = await prisma.client.findFirst({
+      where: { OR: [{ email }, { phone: email }] },
+    })
+    if (client && client.password) {
+      const valid = comparePassword(password, client.password)
+      if (!valid) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+      }
+      const token = await signToken({
+        sub: client.id,
+        email: client.email || client.phone,
+        name: client.name,
+        role: 'CLIENT',
+      })
+      const res = NextResponse.json({
+        id: client.id,
+        email: client.email,
+        phone: client.phone,
+        name: client.name,
+        role: 'CLIENT',
+      })
+      res.cookies.set('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 8,
+        path: '/',
+      })
+      return res
     }
 
-    const token = await signToken({
-      sub: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    })
-
-    const res = NextResponse.json({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    })
-    res.cookies.set('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 8,
-      path: '/',
-    })
-    return res
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   } catch (error) {
     console.error('Login error:', error)
     return serverError()
