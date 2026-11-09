@@ -17,29 +17,34 @@ PinkDog é uma aplicação fullstack para administração de clínicas veteriná
 
 ```
 pinkDog/
-├── web/                    # Aplicação principal (Next.js)
-│   ├── prisma/             # Schema e seed do banco
-│   ├── src/app/            # Rotas e páginas
-│   │   ├── page.tsx        # Landing page
-│   │   ├── admin/          # Dashboard administrativo
-│   │   ├── staff/          # Painel operacional (Kanban)
-│   │   ├── login/          # Autenticação
-│   │   └── api/            # Endpoints REST
-│   └── public/             # Assets estáticos
-├── backend/                # Configurações e schema de referência
-├── assets/                 # Imagens e mídias do projeto
-└── referencias/            # HTMLs de referência de UI
+├─── web/                    # Aplicação principal (Next.js)
+│   ├─── prisma/             # Schema, migrations e seed do banco
+│   ├─── src/app/            # Rotas e páginas
+│   │   ├─── page.tsx        # Landing page (com barra de acesso do tutor)
+│   │   ├─── cadastro/       # Cadastro público de tutor + pet
+│   │   ├─── cliente/        # Dashboard do tutor (protegido)
+│   │   ├─── login/          # Login dual (cliente / funcionário)
+│   │   ├─── admin/          # Dashboard administrativo
+│   │   ├─── staff/          # Painel operacional (Kanban)
+│   │   └─── api/            # Endpoints REST
+│   └─── public/             # Assets estáticos
+├─── backend/                # Schema de referência (Prisma)
+├─── assets/                 # Imagens e mídias do projeto
+└─── referencias/            # HTMLs de referência de UI
 ```
 
 ## Funcionalidades principais
 
-- **Gestão de tutores e pets**: cadastro, busca e histórico
+- **Cadastro público de tutor e pet**: formulário brutalista com live preview de ticket rosa
+- **Login dual**: clientes (por email/telefone) e funcionários (por email) na mesma tela
+- **Dashboard do tutor**: área protegida com dados pessoais, lista de pets e ações rápidas
+- **Gestão de tutores e pets**: cadastro, busca e histórico (painel staff/admin)
 - **Agendamentos**: pipeline completo com etapas (espera → execução → acabamento → pronto)
 - **Prontuário clínico**: registros médicos com anexos
 - **Controle de estoque**: produtos, movimentações e alertas de reposição
 - **RH / Staff**: funcionários, setores (SPA, VET, GERAL) e permissões operacionais
-- **Dashboard**: estatísticas e acompanhamento em tempo real
-- **Autenticação**: login com controle de acesso por perfil
+- **Dashboard administrativo**: estatísticas e acompanhamento em tempo real
+- **Autenticação**: JWT com cookie HttpOnly, controle de acesso por role
 
 ## Como rodar
 
@@ -66,23 +71,28 @@ npm run dev
 ```
 
 Acesse:
-- Landing: http://localhost:3000
-- Admin:   http://localhost:3000/admin
-- Staff:   http://localhost:3000/staff
-- Login:   http://localhost:3000/login
+- Landing:  http://localhost:3000
+- Cadastro: http://localhost:3000/cadastro
+- Login:    http://localhost:3000/login
+- Cliente:  http://localhost:3000/cliente
+- Admin:    http://localhost:3000/admin
+- Staff:    http://localhost:3000/staff
 
 ## API
 
 | Método | Rota | Descrição |
 |--------|------|-----------|
-| GET/POST | /api/clients | Tutores |
-| GET/POST | /api/pets | Pets |
+| GET/POST | /api/clients | Tutores (painel admin) |
+| GET/POST | /api/pets | Pets (painel admin) |
 | GET/POST | /api/services | Catálogo de serviços |
 | GET/POST | /api/appointments | Agendamentos |
 | PATCH | /api/appointments | Atualizar status/etapa |
 | GET/PATCH | /api/staff | Funcionários |
 | GET | /api/dashboard/stats | Estatísticas |
-| POST | /api/auth/login | Login |
+| POST | /api/auth/register | Cadastro público (tutor + pet) |
+| POST | /api/auth/login | Login dual (cliente / funcionário) |
+| POST | /api/auth/logout | Encerrar sessão |
+| GET | /api/me | Dados do usuário logado com pets |
 
 ## Entidades
 
@@ -94,6 +104,24 @@ Acesse:
 - **MedicalRecord**: prontuários clínicos
 - **Product/Inventory**: estoque e movimentações
 - **NotificationLog**: log de notificações
+
+## O que foi feito (09/11/2026)
+
+### Fluxo de cadastro e login do tutor
+- Cadastro publico de tutor + pet em `/cadastro` (form brutalista com live preview)
+- Login dual: clientes logam com email ou telefone; funcionarios com email
+- JWT com `role=CLIENT` para tutores autenticados
+- Dashboard do tutor em `/cliente` (protegido, exibe dados e pets)
+- API `POST /api/auth/register` cria Client + Pet atomico e emite cookie
+- API `POST /api/auth/login` tenta `User` (staff) primeiro, depois `Client`
+- API `GET /api/me` retorna dados do logado com pets incluidos
+- API `POST /api/auth/logout` limpa o cookie de sessao
+- Middleware atualizado com paths publicos: `/`, `/cadastro`, `/api/auth/register`
+
+### Schema
+- `Client.password` para autenticacao de tutores
+- `Client.phone` como `@unique` para login por telefone
+- `Pet.preferredSector` (SPA/VET/GERAL) para ala de atendimento inicial
 
 ## O que foi feito (06/11/2026)
 
@@ -111,10 +139,13 @@ Acesse:
 - Removido `any` dos componentes principais
 - Schema Prisma corrigido (enums -> String para SQLite, relacao StaffMember corrigida)
 - Redirecionamento por role no login (admin -> /admin, staff -> /staff)
-- Botões com `type="button"`, links whatsapp com `rel="noopener noreferrer"`
+- Botoes com `type="button"`, links whatsapp com `rel="noopener noreferrer"`
 
 ## O que ficou para a proxima
 
+- [ ] Agendamento online pelo dashboard do tutor
+- [ ] Cadastro de pet adicional para tutor ja logado
+- [ ] Recuperacao de senha (cliente e funcionario)
 - [ ] Rate limiting (login e APIs) - precisa Redis/Upstash
 - [ ] Audit logging - tabela de logs para acoes criticas
 - [ ] Testes unitarios (Vitest/Jest) e E2E (Playwright)
